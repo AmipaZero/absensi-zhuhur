@@ -4,24 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistem Absensi Sholat - SMKF Bhakti Kencana</title>
+  
+  <!-- Library Pendukung -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
   <style>
     .bg-islamic { background: linear-gradient(135deg, #f97316 0%, #d97706 50%, #dc2626 100%); }
-    .fade-in { animation: fadeIn 0.3s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans text-gray-800">
 
-  <!-- MASUKKAN URL WEB APP ANDA DI SINI -->
+  <!-- ========================================== -->
+  <!-- KONFIGURASI API -->
   <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwH6jQHYGHGqWqttuuZNONzi97md-frcD2mvmNG0-xlVwgk6p8V5vJtxT5A0nstBxEPXw/exec"; 
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw_bqhi9goPFWCVkdLEiP_kOZ4qDEUiUyDCi7tOS6KpxzOgiaen8xRa3T_ofmiRubxpBQ/exec"; 
   </script>
+  <!-- ========================================== -->
 
+  <!-- HEADER -->
   <header class="bg-islamic text-white shadow-lg p-4 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <div class="flex items-center space-x-3">
@@ -42,7 +48,9 @@
 
   <main class="max-w-6xl mx-auto p-4 mt-2">
     
-    <!-- HALAMAN LOGIN -->
+    <!-- ========================================== -->
+    <!-- VIEW: HALAMAN LOGIN                        -->
+    <!-- ========================================== -->
     <div id="view-login" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-6 mt-10 fade-in">
       <div class="text-center mb-6">
         <div class="inline-block bg-orange-100 p-4 rounded-full text-orange-600 mb-3">
@@ -57,8 +65,8 @@
         <button id="btnRoleAdmin" onclick="switchLoginRole('admin')" class="flex-1 py-2 text-center rounded-md text-gray-500 font-bold hover:text-gray-700 transition">Guru / Admin</button>
       </div>
 
-      <!-- Banner Jam Operasional -->
-      <div id="bannerOperasional" class="hidden mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+      <!-- Banner Jam Operasional Khusus Siswa -->
+      <div id="bannerOperasional" class="hidden mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg fade-in">
         <div class="flex items-center">
           <i class="fa-solid fa-clock text-red-500 mr-2 text-lg"></i>
           <div>
@@ -74,44 +82,49 @@
           <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
           <div class="relative">
             <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i>
-            <input type="text" id="username" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+            <input type="text" id="username" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition" required placeholder="Masukkan username">
           </div>
         </div>
         <div class="mb-6">
           <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-400"></i>
-            <input type="password" id="password" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+            <input type="password" id="password" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition" required placeholder="••••••••">
           </div>
         </div>
-        <button type="submit" id="btnLoginSubmit" class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-700 transition shadow-md">
-          <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk Sekarang
+        <button type="submit" id="btnLoginSubmit" class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-700 transition shadow-md flex justify-center items-center">
+          <span>Masuk Sekarang</span> <i class="fa-solid fa-arrow-right ml-2"></i>
         </button>
       </form>
     </div>
 
-    <!-- DASHBOARD SISWA -->
-    <div id="view-siswa" class="hidden max-w-md mx-auto fade-in">
-      <div class="bg-white rounded-2xl shadow-md p-6 mb-4 text-center border-t-4 border-orange-500">
+    <!-- ========================================== -->
+    <!-- VIEW: DASHBOARD SISWA                      -->
+    <!-- ========================================== -->
+    <div id="view-siswa" class="hidden max-w-md mx-auto">
+      
+      <!-- Kartu Profil -->
+      <div class="bg-white rounded-2xl shadow-md p-6 mb-4 text-center border-t-4 border-orange-500 fade-in">
         <h3 id="siswaNama" class="text-xl font-bold text-gray-800">Nama</h3>
         <p id="siswaKelas" class="text-gray-500 text-sm font-medium mt-1">Kelas | ID</p>
       </div>
 
-      <!-- Form Absensi (Akan disembunyikan jika sudah absen) -->
+      <!-- FORM SCANNER ABSENSI (Sembunyi jika sudah absen) -->
       <div id="formAbsensi" class="bg-white rounded-2xl shadow-md p-6 fade-in">
-        <h4 class="font-bold text-gray-700 mb-4 text-center">Silahkan Scan QR Untuk Absen Sholat!</h4>
-        
+        <h4 class="font-bold text-gray-700 mb-4 text-center">Scand QR Untuk Absen Sholat!</h4>
+
         <button id="btnStartScan" onclick="startScanner()" class="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:bg-orange-700 shadow-md transition">
           <i class="fa-solid fa-qrcode mr-2"></i> Scan QR Absensi
         </button>
 
+        <!-- Area Kamera -->
         <div id="reader-container" class="hidden mt-4">
-          <div class="bg-gray-900 rounded-xl p-2 mb-2"><div id="reader" class="w-full rounded-lg overflow-hidden"></div></div>
-          <button onclick="stopScanner()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-300">Batalkan Kamera</button>
+          <div class="bg-gray-900 rounded-xl p-2 mb-2 shadow-inner"><div id="reader" class="w-full rounded-lg overflow-hidden"></div></div>
+          <button onclick="stopScanner()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-300 transition">Batalkan Kamera</button>
         </div>
       </div>
 
-      <!-- Pesan Sukses (Hanya muncul jika sudah absen hari ini) -->
+      <!-- KARTU "ALHAMDULILLAH" SUDAH ABSEN -->
       <div id="pesanSudahAbsen" class="hidden bg-white rounded-2xl shadow-md p-6 text-center border-t-4 border-green-500 fade-in">
         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-green-500 text-4xl shadow-inner">
           <i class="fa-solid fa-check-double"></i>
@@ -119,21 +132,22 @@
         <h4 class="font-bold text-gray-800 text-xl mb-1">Alhamdulillah</h4>
         <p class="text-gray-500 text-sm">Anda sudah melakukan absensi sholat zhuhur hari ini. Silakan tutup aplikasi.</p>
       </div>
-
     </div>
 
-    <!-- DASHBOARD ADMIN -->
+    <!-- ========================================== -->
+    <!-- VIEW: DASHBOARD ADMIN                      -->
+    <!-- ========================================== -->
     <div id="view-admin" class="hidden w-full fade-in">
       <div class="flex space-x-1 border-b-2 border-gray-200 mb-6 bg-white p-1 rounded-t-lg shadow-sm">
-        <button onclick="switchAdminTab('qr')" id="tab-qr" class="admin-tab flex-1 py-3 text-center text-orange-600 border-b-2 border-orange-600 font-bold transition">Generator QR</button>
-        <button onclick="switchAdminTab('rekap')" id="tab-rekap" class="admin-tab flex-1 py-3 text-center text-gray-500 font-medium hover:text-gray-700 transition">Rekap Absen</button>
+        <button onclick="switchAdminTab('qr')" id="tab-qr" class="admin-tab flex-1 py-3 text-center text-orange-600 border-b-2 border-orange-600 font-bold transition"><i class="fa-solid fa-qrcode mr-1"></i> Generator QR</button>
+        <button onclick="switchAdminTab('rekap')" id="tab-rekap" class="admin-tab flex-1 py-3 text-center text-gray-500 font-medium hover:text-gray-700 transition"><i class="fa-solid fa-file-lines mr-1"></i> Rekap Absen</button>
       </div>
 
-      <!-- Tab QR -->
+      <!-- Tab QR Generator -->
       <div id="admin-content-qr" class="max-w-md mx-auto bg-white rounded-2xl shadow-md p-8 text-center border-t-4 border-orange-500">
-        <h2 class="text-2xl font-bold mb-2">QR Aktif Hari Ini</h2>
+        <h2 class="text-2xl font-bold mb-2 text-gray-800">QR Aktif Hari Ini</h2>
         <p class="text-gray-500 mb-6 text-sm">Otomatis berganti tiap 60 detik.</p>
-        <div class="bg-gray-50 p-4 rounded-xl inline-block mb-6 shadow-inner border"><div id="qrcode"></div></div>
+        <div class="bg-gray-50 p-4 rounded-xl inline-block mb-6 shadow-inner border border-gray-100"><div id="qrcode"></div></div>
         <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden shadow-inner">
           <div id="qrProgressBar" class="bg-gradient-to-r from-orange-400 to-red-500 h-3 rounded-full" style="width: 100%"></div>
         </div>
@@ -143,17 +157,15 @@
         </button>
       </div>
 
-      <!-- Tab Rekap -->
+      <!-- Tab Rekap Laporan -->
       <div id="admin-content-rekap" class="hidden bg-white rounded-2xl shadow-md p-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b pb-4">
-          <div>
-            <h2 class="text-xl font-bold text-gray-800">Database Absensi</h2>
-          </div>
+          <div><h2 class="text-xl font-bold text-gray-800">Database Absensi</h2></div>
           <div class="flex space-x-2 w-full md:w-auto">
-            <button id="btnRefresh" onclick="fetchLaporan()" class="flex-1 md:flex-none bg-blue-50 text-blue-600 px-4 py-2.5 rounded-lg text-sm font-bold border border-blue-200 hover:bg-blue-100">
+            <button id="btnRefresh" onclick="fetchLaporan()" class="flex-1 md:flex-none bg-blue-50 text-blue-600 px-4 py-2.5 rounded-lg text-sm font-bold border border-blue-200 hover:bg-blue-100 transition">
               <i class="fa-solid fa-sync-alt"></i> Muat Ulang
             </button>
-            <button onclick="exportToExcel()" class="flex-1 md:flex-none bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-green-700 shadow">
+            <button onclick="exportToExcel()" class="flex-1 md:flex-none bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-green-700 shadow transition">
               <i class="fa-solid fa-file-excel mr-1"></i> Export Excel
             </button>
           </div>
@@ -169,7 +181,7 @@
               </tr>
             </thead>
             <tbody id="tbodyLaporan" class="divide-y divide-gray-100">
-              <tr><td colspan="4" class="text-center py-8">Klik Muat Ulang untuk mengambil data.</td></tr>
+              <tr><td colspan="4" class="text-center py-8">Klik Muat Ulang untuk mengambil data dari Google Sheets.</td></tr>
             </tbody>
           </table>
         </div>
@@ -177,6 +189,9 @@
     </div>
   </main>
 
+  <!-- ========================================== -->
+  <!-- SCRIPT LOGIKA JAVASCRIPT                   -->
+  <!-- ========================================== -->
   <script>
     let currentUser = null;
     let html5QrcodeScanner = null;
@@ -184,19 +199,23 @@
     let isScannerRunning = false;
     window.laporanData = [];
 
-    // FUNGSI CEK JAM UNTUK UI
+    // FUNGSI CEK JAM UI (Tampil/Sembunyikan Banner Operasional)
     function updateUIJamOperasional() {
       const jam = new Date().getHours();
       const banner = document.getElementById('bannerOperasional');
-      const isLuarJam = jam < 10 || jam >= 16;
+      // Jika sebelum jam 10 atau sudah lewat jam 15.59
+      const isLuarJam = jam < 10 || jam >= 16; 
+      
       if (isLuarJam && document.getElementById('loginRole').value === 'siswa') {
         banner.classList.remove('hidden');
       } else {
         banner.classList.add('hidden');
       }
     }
+    // Cek setiap detik agar langsung update tanpa refresh page
     setInterval(updateUIJamOperasional, 1000);
 
+    // FUNGSI NAVIGASI HALAMAN
     function showView(viewId) {
       ['view-login', 'view-siswa', 'view-admin'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById(viewId).classList.remove('hidden');
@@ -206,6 +225,7 @@
       document.getElementById('loginRole').value = role;
       const btnSiswa = document.getElementById('btnRoleSiswa');
       const btnAdmin = document.getElementById('btnRoleAdmin');
+      
       if (role === 'siswa') {
         btnSiswa.className = 'flex-1 py-2 text-center rounded-md bg-white shadow-sm text-orange-600 font-bold transition';
         btnAdmin.className = 'flex-1 py-2 text-center rounded-md text-gray-500 font-bold hover:text-gray-700 transition';
@@ -213,23 +233,31 @@
         btnAdmin.className = 'flex-1 py-2 text-center rounded-md bg-white shadow-sm text-orange-600 font-bold transition';
         btnSiswa.className = 'flex-1 py-2 text-center rounded-md text-gray-500 font-bold hover:text-gray-700 transition';
       }
-      updateUIJamOperasional(); 
+      updateUIJamOperasional(); // Update banner
     }
 
     function switchAdminTab(tab) {
       document.querySelectorAll('.admin-tab').forEach(el => el.className = 'admin-tab flex-1 py-3 text-center text-gray-500 font-medium hover:text-gray-700 transition');
       document.getElementById('tab-' + tab).className = 'admin-tab flex-1 py-3 text-center text-orange-600 border-b-2 border-orange-600 font-bold transition';
+      
       document.getElementById('admin-content-qr').classList.add('hidden');
       document.getElementById('admin-content-rekap').classList.add('hidden');
       document.getElementById('admin-content-' + tab).classList.remove('hidden');
+      
+      // Auto-load data jika tab rekap diklik dan belum ada data
       if(tab === 'rekap' && window.laporanData.length === 0) fetchLaporan();
     }
 
+    // FUNGSI LOGIN / LOGOUT
     async function handleLogin(e) {
       e.preventDefault();
-      if (!GAS_API_URL.startsWith("http")) return alert("PERHATIAN: URL Apps Script belum diisi!");
+      
+      if (!GAS_API_URL.startsWith("http")) {
+        return alert("PERHATIAN: Anda belum memasukkan URL Google Apps Script di baris ke-24!");
+      }
       
       const btn = document.getElementById('btnLoginSubmit');
+      const originalText = btn.innerHTML;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...';
       btn.disabled = true;
       
@@ -251,53 +279,78 @@
           document.getElementById('welcomeName').innerText = `Halo, ${currentUser.nama}`;
           
           if (currentUser.role === 'admin') {
-            showView('view-admin'); generateNewQR(); 
+            showView('view-admin'); 
+            generateNewQR(); 
           } else {
             showView('view-siswa');
             document.getElementById('siswaNama').innerText = currentUser.nama;
             document.getElementById('siswaKelas').innerText = `Kelas ${currentUser.kelas} | ID: ${currentUser.id}`;
-            // Reset state scanner (berjaga-jaga jika login beda akun)
-            document.getElementById('formAbsensi').classList.remove('hidden');
-            document.getElementById('pesanSudahAbsen').classList.add('hidden');
+            
+            // LOGIKA PENTING: Menerima sinyal "sudah_absen" dari backend
+            if (currentUser.sudah_absen === true) {
+              document.getElementById('formAbsensi').classList.add('hidden');
+              document.getElementById('pesanSudahAbsen').classList.remove('hidden');
+            } else {
+              document.getElementById('formAbsensi').classList.remove('hidden');
+              document.getElementById('pesanSudahAbsen').classList.add('hidden');
+            }
           }
           document.getElementById('loginForm').reset();
         } else {
           alert('❌ ' + data.message);
         }
       } catch (error) {
-        alert('⚠️ Gagal terhubung ke server.');
+        alert('⚠️ Gagal terhubung ke server. Pastikan koneksi internet stabil.');
       } finally {
-        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk Sekarang';
+        btn.innerHTML = originalText;
         btn.disabled = false;
       }
     }
 
     function logout() {
-      currentUser = null; document.getElementById('userInfo').classList.add('hidden');
-      showView('view-login'); if (qrTimerInterval) clearInterval(qrTimerInterval);
-      window.laporanData = []; document.getElementById('tbodyLaporan').innerHTML = '<tr><td colspan="4" class="text-center py-8">Silakan muat ulang data.</td></tr>';
+      currentUser = null; 
+      document.getElementById('userInfo').classList.add('hidden');
+      showView('view-login'); 
       
-      // Reset Scanner & Form Absensi
+      if (qrTimerInterval) clearInterval(qrTimerInterval);
+      window.laporanData = []; 
+      document.getElementById('tbodyLaporan').innerHTML = '<tr><td colspan="4" class="text-center py-8">Silakan muat ulang data.</td></tr>';
+      
+      // Reset UI Siswa agar kembali normal untuk login orang berikutnya
       document.getElementById('formAbsensi').classList.remove('hidden');
       document.getElementById('pesanSudahAbsen').classList.add('hidden');
       stopScanner();
     }
 
+    // FUNGSI SCANNER (SISWA)
     function startScanner() {
       if (isScannerRunning) return;
       document.getElementById('reader-container').classList.remove('hidden');
       document.getElementById('btnStartScan').classList.add('hidden');
+      
       html5QrcodeScanner = new Html5Qrcode("reader");
-      html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 }, 
-        async (decodedText) => { stopScanner(); await kirimAbsen(decodedText); }, (err) => {}
-      ).then(() => { isScannerRunning = true; }).catch(err => {
-        alert("Gagal mengakses kamera. Izin diperlukan."); stopScanner();
+      html5QrcodeScanner.start(
+        { facingMode: "environment" }, 
+        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 }, 
+        async (decodedText) => { 
+          stopScanner(); // Matikan kamera jika berhasil
+          await kirimAbsen(decodedText); 
+        }, 
+        (err) => { /* Abaikan error blank frame */ }
+      ).then(() => { 
+        isScannerRunning = true; 
+      }).catch(err => {
+        alert("⚠️ Gagal mengakses kamera. Pastikan Anda telah memberikan izin kamera pada browser."); 
+        stopScanner();
       });
     }
 
     function stopScanner() {
       if (html5QrcodeScanner && isScannerRunning) {
-        html5QrcodeScanner.stop().then(() => { html5QrcodeScanner.clear(); isScannerRunning = false; }).catch(e => console.log(e));
+        html5QrcodeScanner.stop().then(() => { 
+          html5QrcodeScanner.clear(); 
+          isScannerRunning = false; 
+        }).catch(e => console.log(e));
       }
       document.getElementById('reader-container').classList.add('hidden');
       document.getElementById('btnStartScan').classList.remove('hidden');
@@ -306,26 +359,32 @@
     async function kirimAbsen(qrToken) {
       let status = 'Hadir';
       document.getElementsByName('statusSholat').forEach(r => { if(r.checked) status = r.value; });
+      
       const btn = document.getElementById('btnStartScan');
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim Data...'; btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim Data...'; 
+      btn.disabled = true;
 
       try {
         const res = await fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify({
-            action: 'absen', id_siswa: currentUser.id, nama: currentUser.nama,
-            username: currentUser.username, kelas: currentUser.kelas,
-            keterangan: status, qr_token: qrToken
+            action: 'absen', 
+            id_siswa: currentUser.id, 
+            nama: currentUser.nama,
+            username: currentUser.username, 
+            kelas: currentUser.kelas,
+            keterangan: status, 
+            qr_token: qrToken
           })
         });
         const data = await res.json();
         
         if(data.status === 'success') {
-          // --- LOGIKA BARU: Jika sukses, sembunyikan scanner dan munculkan pesan sukses ---
+          // Sukses -> Tampilkan Alhamdulillah
           document.getElementById('formAbsensi').classList.add('hidden');
           document.getElementById('pesanSudahAbsen').classList.remove('hidden');
         } else {
-          // Jika ditolak karena SUDAH absen, munculkan juga pesan suksesnya.
+          // Gagal -> Jika gagal karena SUDAH absen, tampilkan Alhamdulillah juga
           if(data.message.includes('sudah melakukan absensi')) {
             document.getElementById('formAbsensi').classList.add('hidden');
             document.getElementById('pesanSudahAbsen').classList.remove('hidden');
@@ -333,56 +392,104 @@
             alert('❌ ' + data.message);
           }
         }
-      } catch (e) { alert('⚠️ Gagal terhubung ke server.'); } 
-      finally { btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Scan QR Absensi'; btn.disabled = false; }
+      } catch (e) { 
+        alert('⚠️ Gagal terhubung ke server.'); 
+      } finally { 
+        btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Scan QR Absensi'; 
+        btn.disabled = false; 
+      }
     }
 
+    // FUNGSI ADMIN
     function generateNewQR() {
+      // Bikin token acak yang unik (Anti pembajakan QR hari kemarin)
       const token = "QR-" + Date.now() + "-" + Math.random().toString(36).substr(2, 5).toUpperCase();
+      
       document.getElementById("qrcode").innerHTML = "";
-      new QRCode(document.getElementById("qrcode"), { text: token, width: 220, height: 220, colorDark: "#ea580c", colorLight: "#f9fafb" });
-      fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_token', token: token }) }).catch(e => {});
+      new QRCode(document.getElementById("qrcode"), { 
+        text: token, width: 220, height: 220, colorDark: "#ea580c", colorLight: "#f9fafb" 
+      });
+      
+      // Kirim Token ke server
+      fetch(GAS_API_URL, { 
+        method: 'POST', body: JSON.stringify({ action: 'update_token', token: token }) 
+      }).catch(e => console.log('Background sync token gagal', e));
 
-      let timeLeft = 60; if(qrTimerInterval) clearInterval(qrTimerInterval);
-      const bar = document.getElementById('qrProgressBar'); bar.style.transition = 'none'; bar.style.width = '100%';
+      // Animasi Timer 60 Detik
+      let timeLeft = 60; 
+      if(qrTimerInterval) clearInterval(qrTimerInterval);
+      
+      const bar = document.getElementById('qrProgressBar'); 
+      bar.style.transition = 'none'; 
+      bar.style.width = '100%';
       setTimeout(() => { bar.style.transition = 'width 1s linear'; }, 50);
+      
       qrTimerInterval = setInterval(() => {
-        timeLeft--; bar.style.width = Math.max((timeLeft / 60) * 100, 0) + '%';
+        timeLeft--; 
+        bar.style.width = Math.max((timeLeft / 60) * 100, 0) + '%';
         document.getElementById('qrTimerText').innerText = `Memperbarui dalam: ${Math.max(timeLeft, 0)} detik`;
-        if (timeLeft <= 0) generateNewQR();
+        
+        if (timeLeft <= 0) generateNewQR(); // Auto Regenerate
       }, 1000);
     }
 
     async function fetchLaporan() {
-      const tbody = document.getElementById('tbodyLaporan'); const btn = document.getElementById('btnRefresh');
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8">Menarik data dari Google Sheets...</td></tr>';
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+      const tbody = document.getElementById('tbodyLaporan'); 
+      const btn = document.getElementById('btnRefresh');
+      
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-orange-500 text-3xl mb-3 block"></i>Menarik data dari server...</td></tr>';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; 
+      btn.disabled = true;
+      
       try {
         const res = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_laporan' }) });
         const data = await res.json();
+        
         if (data.status === 'success' && data.data.length > 0) {
           tbody.innerHTML = '';
+          // Urutkan absen paling baru di atas
           window.laporanData = data.data.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)); 
+          
           window.laporanData.forEach(row => {
             const timeStr = new Date(row.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             const badge = row.keterangan === 'Hadir' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200';
-            tbody.innerHTML += `<tr class="bg-white border-b hover:bg-gray-50">
+            
+            tbody.innerHTML += `<tr class="bg-white border-b hover:bg-gray-50 transition">
               <td class="px-5 py-4">${row.tanggal}<br><span class="text-xs text-gray-500">${timeStr} WIB</span></td>
               <td class="px-5 py-4 font-bold text-gray-900">${row.nama}<br><span class="text-xs font-normal text-gray-500">${row.id_siswa}</span></td>
               <td class="px-5 py-4">${row.kelas}</td>
               <td class="px-5 py-4"><span class="px-2.5 py-1 rounded border text-xs font-bold ${badge}">${row.keterangan}</span></td>
             </tr>`;
           });
-        } else tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8">Belum ada data absensi.</td></tr>';
-      } catch(e) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-red-500">Gagal mengambil data.</td></tr>'; } 
-      finally { btn.innerHTML = '<i class="fa-solid fa-sync-alt"></i> Muat Ulang'; btn.disabled = false; }
+        } else {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Belum ada data absensi hari ini.</td></tr>';
+        }
+      } catch(e) { 
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-red-500">Gagal mengambil data. Cek koneksi Anda.</td></tr>'; 
+      } finally { 
+        btn.innerHTML = '<i class="fa-solid fa-sync-alt"></i> Muat Ulang'; 
+        btn.disabled = false; 
+      }
     }
 
     function exportToExcel() {
-      if(window.laporanData.length === 0) return alert("⚠️ Tidak ada data!");
-      const excelData = window.laporanData.map(r => ({ "Waktu": new Date(r.timestamp).toLocaleString('id-ID'), "Tanggal": r.tanggal, "ID Siswa": r.id_siswa, "Nama": r.nama, "Kelas": r.kelas, "Status": r.keterangan }));
-      const ws = XLSX.utils.json_to_sheet(excelData); ws['!cols'] = [{wch:20}, {wch:15}, {wch:15}, {wch:30}, {wch:10}, {wch:15}];
-      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data Absensi");
+      if(window.laporanData.length === 0) return alert("⚠️ Tidak ada data untuk diekspor!");
+      
+      const excelData = window.laporanData.map(r => ({ 
+        "Waktu": new Date(r.timestamp).toLocaleString('id-ID'), 
+        "Tanggal": r.tanggal, 
+        "ID Siswa": r.id_siswa, 
+        "Nama": r.nama, 
+        "Kelas": r.kelas, 
+        "Status": r.keterangan 
+      }));
+      
+      const ws = XLSX.utils.json_to_sheet(excelData); 
+      // Set lebar kolom Excel agar rapi
+      ws['!cols'] = [{wch:20}, {wch:15}, {wch:15}, {wch:30}, {wch:10}, {wch:15}];
+      
+      const wb = XLSX.utils.book_new(); 
+      XLSX.utils.book_append_sheet(wb, ws, "Data Absensi");
       XLSX.writeFile(wb, `Rekap_Absensi_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.xlsx`);
     }
   </script>
