@@ -19,7 +19,7 @@
 
   <!-- MASUKKAN URL WEB APP ANDA DI SINI -->
   <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwH6jQHYGHGqWqttuuZNONzi97md-frcD2mvmNG0-xlVwgk6p8V5vJtxT5A0nstBxEPXw/exec"; 
+    const GAS_API_URL = "URL_WEB_APP_GAS_ANDA_DISINI"; 
   </script>
 
   <header class="bg-islamic text-white shadow-lg p-4 sticky top-0 z-50">
@@ -97,8 +97,10 @@
         <p id="siswaKelas" class="text-gray-500 text-sm font-medium mt-1">Kelas | ID</p>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-6">
-        <h4 class="font-bold text-gray-700 mb-4 text-center">Silahkan Scan QR Untuk Absen!</h4>
+      <!-- Form Absensi (Akan disembunyikan jika sudah absen) -->
+      <div id="formAbsensi" class="bg-white rounded-2xl shadow-md p-6 fade-in">
+        <h4 class="font-bold text-gray-700 mb-4 text-center">Silahkan Scan QR Untuk Absen Sholat!</h4>
+        
         <button id="btnStartScan" onclick="startScanner()" class="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:bg-orange-700 shadow-md transition">
           <i class="fa-solid fa-qrcode mr-2"></i> Scan QR Absensi
         </button>
@@ -108,6 +110,16 @@
           <button onclick="stopScanner()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-300">Batalkan Kamera</button>
         </div>
       </div>
+
+      <!-- Pesan Sukses (Hanya muncul jika sudah absen hari ini) -->
+      <div id="pesanSudahAbsen" class="hidden bg-white rounded-2xl shadow-md p-6 text-center border-t-4 border-green-500 fade-in">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-green-500 text-4xl shadow-inner">
+          <i class="fa-solid fa-check-double"></i>
+        </div>
+        <h4 class="font-bold text-gray-800 text-xl mb-1">Alhamdulillah</h4>
+        <p class="text-gray-500 text-sm">Anda sudah melakukan absensi sholat zhuhur hari ini. Silakan tutup aplikasi.</p>
+      </div>
+
     </div>
 
     <!-- DASHBOARD ADMIN -->
@@ -244,6 +256,9 @@
             showView('view-siswa');
             document.getElementById('siswaNama').innerText = currentUser.nama;
             document.getElementById('siswaKelas').innerText = `Kelas ${currentUser.kelas} | ID: ${currentUser.id}`;
+            // Reset state scanner (berjaga-jaga jika login beda akun)
+            document.getElementById('formAbsensi').classList.remove('hidden');
+            document.getElementById('pesanSudahAbsen').classList.add('hidden');
           }
           document.getElementById('loginForm').reset();
         } else {
@@ -261,6 +276,10 @@
       currentUser = null; document.getElementById('userInfo').classList.add('hidden');
       showView('view-login'); if (qrTimerInterval) clearInterval(qrTimerInterval);
       window.laporanData = []; document.getElementById('tbodyLaporan').innerHTML = '<tr><td colspan="4" class="text-center py-8">Silakan muat ulang data.</td></tr>';
+      
+      // Reset Scanner & Form Absensi
+      document.getElementById('formAbsensi').classList.remove('hidden');
+      document.getElementById('pesanSudahAbsen').classList.add('hidden');
       stopScanner();
     }
 
@@ -300,7 +319,20 @@
           })
         });
         const data = await res.json();
-        if(data.status === 'success') alert('✅ ' + data.message); else alert('❌ ' + data.message);
+        
+        if(data.status === 'success') {
+          // --- LOGIKA BARU: Jika sukses, sembunyikan scanner dan munculkan pesan sukses ---
+          document.getElementById('formAbsensi').classList.add('hidden');
+          document.getElementById('pesanSudahAbsen').classList.remove('hidden');
+        } else {
+          // Jika ditolak karena SUDAH absen, munculkan juga pesan suksesnya.
+          if(data.message.includes('sudah melakukan absensi')) {
+            document.getElementById('formAbsensi').classList.add('hidden');
+            document.getElementById('pesanSudahAbsen').classList.remove('hidden');
+          } else {
+            alert('❌ ' + data.message);
+          }
+        }
       } catch (e) { alert('⚠️ Gagal terhubung ke server.'); } 
       finally { btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Scan QR Absensi'; btn.disabled = false; }
     }
