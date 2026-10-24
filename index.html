@@ -1,728 +1,540 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Data Siswa | SMK Farmasi Bhakti Kencana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Absensi Sholat - SMKF Bhakti Kencana</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QRCode.js (Untuk Admin) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Html5-Qrcode (Untuk Siswa) -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <!-- SheetJS (Untuk Export Excel) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
-    :root {
-      --orange: #ed7d16;
-      --orange-dark: #c65d08;
-      --yellow: #fff0c2;
-      --ink: #243247;
-      --muted: #687386;
-      --line: #e5e7eb;
-      --bg: #f7f8fa;
-      --white: #fff;
-      --green: #18794e;
-      --red: #b42318;
+    .bg-islamic {
+      background: linear-gradient(135deg, #f97316 0%, #d97706 50%, #dc2626 100%);
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-    }
-
-    header {
-      background: var(--white);
-      border-bottom: 4px solid var(--orange);
-      padding: 23px 5%;
-    }
-
-    .brand {
-      max-width: 1150px;
-      margin: auto;
-    }
-
-    .eyebrow {
-      color: var(--orange-dark);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 8px 0 6px;
-      font-size: clamp(23px, 4vw, 34px);
-    }
-
-    header p {
-      color: var(--muted);
-      margin: 0;
-      font-size: 14px;
-    }
-
-    main {
-      max-width: 1150px;
-      margin: 28px auto;
-      padding: 0 20px 40px;
-    }
-
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .count {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 9px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      border: 0;
-      border-radius: 8px;
-      padding: 11px 15px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: wait;
-    }
-
-    .primary {
-      color: white;
-      background: var(--orange);
-    }
-
-    .primary:hover { background: var(--orange-dark); }
-
-    .secondary {
-      background: white;
-      border: 1px solid var(--line);
-      color: var(--ink);
-    }
-
-    .danger {
-      color: var(--red);
-      background: #fff0ef;
-    }
-
-    .table-wrap {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      overflow: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 700px;
-    }
-
-    th, td {
-      padding: 15px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--line);
-      font-size: 14px;
-    }
-
-    th {
-      background: var(--yellow);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-
-    tr:last-child td { border-bottom: 0; }
-
-    .row-actions {
-      display: flex;
-      gap: 7px;
-    }
-
-    .small {
-      padding: 8px 10px;
-      font-size: 12px;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 35px;
-      color: var(--muted);
-    }
-
-    .search {
-      width: 100%;
-      max-width: 360px;
-      padding: 12px 14px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      font-size: 14px;
-      outline-color: var(--orange);
-      background: white;
-    }
-
-    .notice {
-      display: none;
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin-bottom: 17px;
-      font-size: 14px;
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
-
-    .notice.show { display: block; }
-    .notice.info { background: #eef5ff; color: #174ea6; }
-    .notice.success { background: #eaf7ef; color: var(--green); }
-    .notice.error { background: #fff0ef; color: var(--red); }
-
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(20, 30, 45, .55);
-      z-index: 10;
-      padding: 18px;
-      align-items: center;
-      justify-content: center;
-      overflow: auto;
-    }
-
-    .modal.open { display: flex; }
-
-    .dialog {
-      background: white;
-      width: 100%;
-      max-width: 500px;
-      border-radius: 14px;
-      padding: 25px;
-      max-height: 95vh;
-      overflow-y: auto;
-    }
-
-    .dialog h2 { margin: 0 0 7px; }
-
-    .dialog .hint {
-      color: var(--muted);
-      font-size: 13px;
-      margin: 0 0 20px;
-      line-height: 1.5;
-    }
-
-    .field { margin-bottom: 15px; }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d5d9e0;
-      border-radius: 8px;
-      font: inherit;
-      background: white;
-    }
-
-    input:focus, select:focus {
-      outline: 2px solid #ffdbad;
-      border-color: var(--orange);
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 9px;
-      margin-top: 22px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    @media (max-width: 600px) {
-      main { padding: 0 12px 28px; margin-top: 20px; }
-      header { padding: 20px 16px; }
-      .toolbar { align-items: stretch; }
-      .toolbar .actions { width: 100%; }
-      .toolbar .actions button { flex: 1; }
-      .search { max-width: none; }
-      .dialog { padding: 20px; }
-    }
+    /* Animasi loading ringan */
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
-<body>
-  <header>
-    <div class="brand">
-      <div class="eyebrow">Sistem Informasi Sekolah</div>
-      <h1>Data Siswa</h1>
-      <p>SMK Farmasi Bhakti Kencana · Pengelolaan data siswa</p>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+
+  <!-- ========================================== -->
+  <!-- KONFIGURASI API (GANTI DENGAN URL GAS ANDA)-->
+  <!-- ========================================== -->
+  <script>
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwoBZ8ZqHUb3wvW8pWkPJQL2lXNJk9lQQeA1E7iqUuFs0G9G7t_i8Ozp9XG-1mQbEnA4A/exec"; 
+  </script>
+
+  <!-- HEADER -->
+  <header class="bg-islamic text-white shadow-lg p-4 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-mosque text-3xl"></i>
+        <div>
+          <h1 class="text-lg md:text-xl font-bold leading-tight">SMKF BHAKTI KENCANA</h1>
+          <p class="text-xs text-orange-100">Sistem Absensi Sholat Zhuhur</p>
+        </div>
+      </div>
+      <!-- Info User Login -->
+      <div id="userInfo" class="hidden flex items-center space-x-4">
+        <span id="welcomeName" class="hidden md:inline font-medium text-sm"></span>
+        <button onclick="logout()" class="bg-white text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-red-50 transition shadow">
+          <i class="fa-solid fa-sign-out-alt"></i> <span class="hidden md:inline">Keluar</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main>
-    <div id="notice" class="notice" role="status" aria-live="polite"></div>
-
-    <div class="toolbar">
-      <div>
-        <strong>Daftar siswa</strong>
-        <div class="count" id="count">Memuat data...</div>
+  <main class="max-w-6xl mx-auto p-4 mt-2">
+    
+    <!-- ========================================== -->
+    <!-- VIEW: HALAMAN LOGIN                        -->
+    <!-- ========================================== -->
+    <div id="view-login" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-6 mt-10 fade-in">
+      <div class="text-center mb-6">
+        <div class="inline-block bg-orange-100 p-4 rounded-full text-orange-600 mb-3">
+          <i class="fa-solid fa-user-lock text-3xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800">Portal Login</h2>
+        <p class="text-gray-500 text-sm">Masuk untuk melanjutkan absensi</p>
       </div>
-      <div class="actions">
-        <button class="secondary" id="refreshBtn" type="button"
-          onclick="loadStudents()">Muat ulang</button>
-        <button class="primary" id="addBtn" type="button"
-          onclick="openForm()">+ Tambah siswa</button>
+      
+      <!-- Role Switcher -->
+      <div class="flex rounded-lg bg-gray-100 p-1 mb-6">
+        <button id="btnRoleSiswa" onclick="switchLoginRole('siswa')" class="flex-1 py-2 text-center rounded-md bg-white shadow-sm text-orange-600 font-bold transition">Siswa</button>
+        <button id="btnRoleAdmin" onclick="switchLoginRole('admin')" class="flex-1 py-2 text-center rounded-md text-gray-500 font-bold hover:text-gray-700 transition">Guru / Admin</button>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <input type="hidden" id="loginRole" value="siswa">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+          <div class="relative">
+            <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i>
+            <input type="text" id="username" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" required placeholder="Masukkan username">
+          </div>
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+            <input type="password" id="password" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" required placeholder="••••••••">
+          </div>
+        </div>
+        <button type="submit" id="btnLoginSubmit" class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-700 transition shadow-md flex justify-center items-center">
+          <span>Masuk Sekarang</span> <i class="fa-solid fa-arrow-right ml-2"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: DASHBOARD SISWA (SCANNER)            -->
+    <!-- ========================================== -->
+    <div id="view-siswa" class="hidden max-w-md mx-auto fade-in">
+      <!-- Kartu Profil -->
+      <div class="bg-white rounded-2xl shadow-md p-6 mb-4 text-center border-t-4 border-orange-500">
+        <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 text-orange-500 text-3xl shadow-inner">
+          <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <h3 id="siswaNama" class="text-xl font-bold text-gray-800">Nama Siswa</h3>
+        <p id="siswaKelas" class="text-gray-500 text-sm font-medium mt-1">Kelas | ID</p>
+      </div>
+
+      <!-- Form Absensi -->
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <h4 class="font-bold text-gray-700 mb-4 text-center">Pilih Status Hari Ini</h4>
+        
+        <div class="flex space-x-3 mb-6">
+          <!-- Opsi Hadir -->
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="statusSholat" value="Hadir" class="peer hidden" checked>
+            <div class="p-3 text-center border-2 border-gray-200 rounded-xl peer-checked:border-green-500 peer-checked:bg-green-50 text-gray-500 peer-checked:text-green-700 font-semibold transition">
+              <i class="fa-solid fa-person-praying mb-2 text-2xl"></i><br>Hadir Sholat
+            </div>
+          </label>
+          <!-- Opsi Udzur -->
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="statusSholat" value="Tidak Melaksanakan" class="peer hidden">
+            <div class="p-3 text-center border-2 border-gray-200 rounded-xl peer-checked:border-red-500 peer-checked:bg-red-50 text-gray-500 peer-checked:text-red-700 font-semibold transition">
+              <i class="fa-solid fa-hand-paper mb-2 text-2xl"></i><br>Udzur/Halangan
+            </div>
+          </label>
+        </div>
+
+        <button id="btnStartScan" onclick="startScanner()" class="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:bg-orange-700 transition shadow-md flex justify-center items-center text-lg">
+          <i class="fa-solid fa-qrcode mr-2"></i> Scan QR Absensi
+        </button>
+
+        <!-- Area Kamera (Hidden by default) -->
+        <div id="reader-container" class="hidden mt-4">
+          <div class="bg-gray-900 rounded-xl p-2 mb-2 shadow-inner">
+            <div id="reader" class="w-full rounded-lg overflow-hidden"></div>
+          </div>
+          <button onclick="stopScanner()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-300 transition">Batalkan Kamera</button>
+        </div>
       </div>
     </div>
 
-    <div style="margin-bottom:15px">
-      <input class="search" id="search" type="search"
-        placeholder="Cari nama, username, atau kelas..."
-        aria-label="Cari siswa">
-    </div>
+    <!-- ========================================== -->
+    <!-- VIEW: DASHBOARD ADMIN / GURU               -->
+    <!-- ========================================== -->
+    <div id="view-admin" class="hidden w-full fade-in">
+      
+      <!-- Navigasi Tab Admin -->
+      <div class="flex space-x-1 border-b-2 border-gray-200 mb-6 bg-white p-1 rounded-t-lg shadow-sm">
+        <button onclick="switchAdminTab('qr')" id="tab-qr" class="admin-tab flex-1 py-3 text-center text-orange-600 border-b-2 border-orange-600 font-bold transition">
+          <i class="fa-solid fa-qrcode mr-1"></i> Generator QR
+        </button>
+        <button onclick="switchAdminTab('rekap')" id="tab-rekap" class="admin-tab flex-1 py-3 text-center text-gray-500 font-medium hover:text-gray-700 transition">
+          <i class="fa-solid fa-file-lines mr-1"></i> Rekap Absen
+        </button>
+      </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Nama siswa</th>
-            <th>Username</th>
-            <th>Kelas</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="studentRows">
-          <tr><td colspan="5" class="empty">Menghubungkan ke database...</td></tr>
-        </tbody>
-      </table>
+      <!-- KONTEN TAB: QR GENERATOR -->
+      <div id="admin-content-qr" class="max-w-md mx-auto bg-white rounded-2xl shadow-md p-8 text-center border-t-4 border-orange-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">QR Aktif Hari Ini</h2>
+        <p class="text-gray-500 mb-6 text-sm">Arahkan siswa untuk scan QR ini. Otomatis berganti untuk keamanan.</p>
+        
+        <div class="bg-gray-50 p-4 rounded-xl inline-block mb-6 shadow-inner border border-gray-100">
+          <div id="qrcode" class="flex justify-center"></div>
+        </div>
+        
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden shadow-inner">
+          <div id="qrProgressBar" class="bg-gradient-to-r from-orange-400 to-red-500 h-3 rounded-full transition-all duration-1000 ease-linear" style="width: 100%"></div>
+        </div>
+        <p id="qrTimerText" class="text-sm font-bold text-orange-600 mb-6">Memperbarui dalam: 60 detik</p>
+
+        <button onclick="generateNewQR()" class="w-full bg-gray-800 text-white px-4 py-3 rounded-xl font-bold hover:bg-gray-900 transition shadow">
+          <i class="fa-solid fa-sync-alt mr-2"></i> Perbarui QR Secara Manual
+        </button>
+      </div>
+
+      <!-- KONTEN TAB: REKAP ABSENSI -->
+      <div id="admin-content-rekap" class="hidden bg-white rounded-2xl shadow-md p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Database Absensi</h2>
+            <p class="text-sm text-gray-500">Data *real-time* dari Google Sheets</p>
+          </div>
+          <div class="flex space-x-2 w-full md:w-auto">
+            <button id="btnRefresh" onclick="fetchLaporan()" class="flex-1 md:flex-none bg-blue-50 text-blue-600 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-100 border border-blue-200 transition">
+              <i class="fa-solid fa-sync-alt"></i> Muat Ulang
+            </button>
+            <button onclick="exportToExcel()" class="flex-1 md:flex-none bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-green-700 shadow transition">
+              <i class="fa-solid fa-file-excel mr-1"></i> Export Excel
+            </button>
+          </div>
+        </div>
+        
+        <!-- Tabel Responsif -->
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+          <table class="w-full text-sm text-left text-gray-600" id="tableLaporan">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b border-gray-200">
+              <tr>
+                <th class="px-5 py-4">Waktu Absen</th>
+                <th class="px-5 py-4">Nama Siswa</th>
+                <th class="px-5 py-4">Kelas</th>
+                <th class="px-5 py-4">Status</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyLaporan" class="divide-y divide-gray-100">
+              <tr><td colspan="4" class="text-center py-8 text-gray-400"><i class="fa-solid fa-inbox text-3xl mb-2 block"></i>Klik "Muat Ulang" untuk menarik data dari server.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </main>
 
-  <footer>SMK Farmasi Bhakti Kencana · Data dikelola melalui Google Sheets</footer>
-
-  <div class="modal" id="studentModal" role="dialog"
-    aria-modal="true" aria-labelledby="formTitle">
-    <div class="dialog">
-      <h2 id="formTitle">Tambah siswa</h2>
-      <p class="hint" id="formHint">Isi data siswa di bawah ini.</p>
-
-      <form id="studentForm">
-        <input type="hidden" id="studentId">
-
-        <div class="field">
-          <label for="nama">Nama lengkap</label>
-          <input id="nama" maxlength="100" required autocomplete="name">
-        </div>
-
-        <div class="field">
-          <label for="username">Username</label>
-          <input id="username" maxlength="60" required autocomplete="username">
-        </div>
-
-        <div class="field">
-          <label for="password">Password</label>
-          <input id="password" type="password" minlength="1"
-            autocomplete="new-password">
-          <div class="hint" style="margin:6px 0 0" id="passwordHint">
-            Wajib diisi untuk siswa baru.
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="kelas">Kelas</label>
-          <input id="kelas" maxlength="50" required
-            placeholder="Contoh: X Farmasi 1">
-        </div>
-
-        <div class="dialog-actions">
-          <button class="secondary" type="button"
-            onclick="closeForm()">Batal</button>
-          <button class="primary" type="submit" id="saveBtn">
-            Simpan siswa
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Form POST menuju iframe agar tidak memerlukan fetch lintas domain. -->
-  <iframe name="apiFrame" id="apiFrame" title="Pemroses data"
-    style="display:none"></iframe>
-  <form id="transportForm" method="POST" target="apiFrame"
-    style="display:none"></form>
-
+  <!-- ========================================== -->
+  <!-- SCRIPT LOGIKA JAVASCRIPT                   -->
+  <!-- ========================================== -->
   <script>
-    "use strict";
+    // --- STATE MANAGEMENT ---
+    let currentUser = null;
+    let html5QrcodeScanner = null;
+    let qrTimerInterval = null;
+    let isScannerRunning = false;
+    window.laporanData = []; // Untuk export excel
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbx54De5er_-HSks78rifn4ZsU-38AWNObk9Wsw2gph0XAUrhpsrySRGa7a29XrbflLfAQ/exec";
-    const API_KEY = "rahasia";
-
-    let students = [];
-    let busy = false;
-    let pendingAction = null;
-    let requestTimer = null;
-    let jsonpTimer = null;
-
-    const $ = id => document.getElementById(id);
-
-    function showNotice(message, type = "info") {
-      const el = $("notice");
-      el.textContent = message;
-      el.className = "notice show " + type;
-    }
-
-    function hideNotice() {
-      $("notice").className = "notice";
-      $("notice").textContent = "";
-    }
-
-    function setBusy(value) {
-      busy = value;
-      $("saveBtn").disabled = value;
-      $("addBtn").disabled = value;
-      $("refreshBtn").disabled = value;
-      $("saveBtn").textContent = value ? "Memproses..." : "Simpan siswa";
-    }
-
-    // JSONP untuk GET: browser memuat script, bukan fetch lintas domain.
-    function apiGet(action, params = {}) {
-      return new Promise((resolve, reject) => {
-        const callbackName =
-          "apiCallback_" + Date.now() + "_" +
-          Math.random().toString(36).slice(2);
-
-        const script = document.createElement("script");
-        const url = new URL(API_URL);
-
-        url.searchParams.set("action", action);
-        url.searchParams.set("key", API_KEY);
-        url.searchParams.set("callback", callbackName);
-        url.searchParams.set("_", Date.now());
-
-        Object.entries(params).forEach(([key, value]) => {
-          url.searchParams.set(key, value);
-        });
-
-        let finished = false;
-
-        function cleanup() {
-          if (finished) return;
-          finished = true;
-          clearTimeout(jsonpTimer);
-          delete window[callbackName];
-          script.remove();
-        }
-
-        window[callbackName] = data => {
-          cleanup();
-          if (data && data.success) {
-            resolve(data);
-          } else {
-            reject(new Error(data?.message || "Permintaan gagal."));
-          }
-        };
-
-        script.onerror = () => {
-          cleanup();
-          reject(new Error(
-            "Tidak dapat menghubungi API. Periksa URL deployment dan akses Web App."
-          ));
-        };
-
-        jsonpTimer = setTimeout(() => {
-          cleanup();
-          reject(new Error(
-            "Waktu tunggu API habis. Periksa deployment Apps Script."
-          ));
-        }, 15000);
-
-        script.src = url.toString();
-        document.body.appendChild(script);
+    // --- FUNGSI UI & NAVIGASI ---
+    function showView(viewId) {
+      ['view-login', 'view-siswa', 'view-admin'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
       });
+      document.getElementById(viewId).classList.remove('hidden');
     }
 
-    function renderStudents() {
-      const query = $("search").value.trim().toLowerCase();
+    function switchLoginRole(role) {
+      document.getElementById('loginRole').value = role;
+      const btnSiswa = document.getElementById('btnRoleSiswa');
+      const btnAdmin = document.getElementById('btnRoleAdmin');
 
-      const filtered = students.filter(s =>
-        [s.Nama, s.Username, s.Kelas]
-          .some(v => String(v || "").toLowerCase().includes(query))
-      );
+      if (role === 'siswa') {
+        btnSiswa.className = 'flex-1 py-2 text-center rounded-md bg-white shadow-sm text-orange-600 font-bold transition';
+        btnAdmin.className = 'flex-1 py-2 text-center rounded-md text-gray-500 font-bold hover:text-gray-700 transition';
+      } else {
+        btnAdmin.className = 'flex-1 py-2 text-center rounded-md bg-white shadow-sm text-orange-600 font-bold transition';
+        btnSiswa.className = 'flex-1 py-2 text-center rounded-md text-gray-500 font-bold hover:text-gray-700 transition';
+      }
+    }
 
-      $("count").textContent =
-        filtered.length + " siswa ditampilkan · " +
-        students.length + " total data";
+    function switchAdminTab(tab) {
+      // Styling Tab
+      document.querySelectorAll('.admin-tab').forEach(el => {
+        el.className = 'admin-tab flex-1 py-3 text-center text-gray-500 font-medium hover:text-gray-700 transition';
+      });
+      document.getElementById('tab-' + tab).className = 'admin-tab flex-1 py-3 text-center text-orange-600 border-b-2 border-orange-600 font-bold transition';
 
-      const tbody = $("studentRows");
-      tbody.replaceChildren();
+      // Konten Tab
+      document.getElementById('admin-content-qr').classList.add('hidden');
+      document.getElementById('admin-content-rekap').classList.add('hidden');
+      document.getElementById('admin-content-' + tab).classList.remove('hidden');
+      
+      // Auto fetch jika tab rekap dibuka
+      if(tab === 'rekap' && window.laporanData.length === 0) fetchLaporan();
+    }
 
-      if (filtered.length === 0) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 5;
-        td.className = "empty";
-        td.textContent = students.length
-          ? "Tidak ada siswa yang cocok dengan pencarian."
-          : "Belum ada data siswa. Klik Tambah siswa untuk memulai.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
+    // --- FUNGSI AUTENTIKASI ---
+    async function handleLogin(e) {
+      e.preventDefault();
+      if (!GAS_API_URL || GAS_API_URL.includes("URL_WEB_APP_GAS_ANDA_DISINI")) {
+        alert("⚠️ PERHATIAN: Anda belum memasukkan URL Google Apps Script pada kode HTML (Baris 29).");
         return;
       }
 
-      filtered.forEach((student, index) => {
-        const tr = document.createElement("tr");
-
-        [
-          String(index + 1),
-          student.Nama || "",
-          student.Username || "",
-          student.Kelas || ""
-        ].forEach(value => {
-          const td = document.createElement("td");
-          td.textContent = value;
-          tr.appendChild(td);
-        });
-
-        const actionTd = document.createElement("td");
-        const actionBox = document.createElement("div");
-        actionBox.className = "row-actions";
-
-        const editBtn = document.createElement("button");
-        editBtn.type = "button";
-        editBtn.className = "secondary small";
-        editBtn.textContent = "Edit";
-        editBtn.addEventListener("click", () => openForm(student));
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.type = "button";
-        deleteBtn.className = "danger small";
-        deleteBtn.textContent = "Hapus";
-        deleteBtn.addEventListener("click", () => deleteStudent(student));
-
-        actionBox.append(editBtn, deleteBtn);
-        actionTd.appendChild(actionBox);
-        tr.appendChild(actionTd);
-        tbody.appendChild(tr);
-      });
-    }
-
-    async function loadStudents() {
-      hideNotice();
-      $("count").textContent = "Memuat data...";
-
-      try {
-        const result = await apiGet("list");
-        students = Array.isArray(result.data) ? result.data : [];
-        renderStudents();
-      } catch (error) {
-        $("count").textContent = "Data gagal dimuat";
-        $("studentRows").innerHTML =
-          '<tr><td colspan="5" class="empty"></td></tr>';
-        $("studentRows").querySelector(".empty").textContent = error.message;
-        showNotice(error.message, "error");
-      }
-    }
-
-    function openForm(student = null) {
-      if (busy) return;
-
-      $("studentForm").reset();
-      $("studentId").value = student ? student.ID : "";
-      $("formTitle").textContent = student ? "Edit siswa" : "Tambah siswa";
-      $("formHint").textContent = student
-        ? "Perbarui informasi siswa. Password boleh dikosongkan jika tidak ingin mengubahnya."
-        : "Masukkan informasi siswa yang akan disimpan.";
-      $("passwordHint").textContent = student
-        ? "Kosongkan jika password tidak ingin diubah."
-        : "Wajib diisi untuk siswa baru.";
-      $("password").required = !student;
-
-      if (student) {
-        $("nama").value = student.Nama || "";
-        $("username").value = student.Username || "";
-        $("kelas").value = student.Kelas || "";
-      }
-
-      $("studentModal").classList.add("open");
-      $("nama").focus();
-    }
-
-    function closeForm() {
-      if (busy) return;
-      $("studentModal").classList.remove("open");
-    }
-
-    $("studentModal").addEventListener("click", event => {
-      if (event.target === $("studentModal")) closeForm();
-    });
-
-    $("search").addEventListener("input", renderStudents);
-
-    $("studentForm").addEventListener("submit", event => {
-      event.preventDefault();
-      if (busy) return;
-
-      const id = $("studentId").value.trim();
-      const data = {
-        action: id ? "update" : "create",
-        ID: id,
-        Nama: $("nama").value.trim(),
-        Username: $("username").value.trim(),
-        Password: $("password").value,
-        Kelas: $("kelas").value.trim()
+      const btn = document.getElementById('btnLoginSubmit');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...';
+      btn.disabled = true;
+      
+      const payload = {
+        action: 'login',
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value.trim(),
+        role: document.getElementById('loginRole').value
       };
 
-      if (!data.Nama || !data.Username || !data.Kelas) {
-        showNotice("Nama, username, dan kelas wajib diisi.", "error");
-        return;
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          currentUser = data.data;
+          document.getElementById('userInfo').classList.remove('hidden');
+          document.getElementById('welcomeName').innerText = `Halo, ${currentUser.nama}`;
+          
+          if (currentUser.role === 'admin') {
+            showView('view-admin');
+            generateNewQR(); 
+          } else {
+            showView('view-siswa');
+            document.getElementById('siswaNama').innerText = currentUser.nama;
+            document.getElementById('siswaKelas').innerText = `Kelas ${currentUser.kelas} | ID: ${currentUser.id}`;
+          }
+          document.getElementById('loginForm').reset();
+        } else {
+          alert('❌ Gagal: ' + data.message);
+        }
+      } catch (error) {
+        alert('⚠️ Gagal terhubung ke server Google. Pastikan URL benar dan internet stabil.');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('userInfo').classList.add('hidden');
+      showView('view-login');
+      
+      // Cleanup Admin
+      if (qrTimerInterval) clearInterval(qrTimerInterval);
+      window.laporanData = [];
+      document.getElementById('tbodyLaporan').innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-400">Silakan muat ulang data.</td></tr>';
+      
+      // Cleanup Siswa
+      stopScanner();
+    }
+
+    // --- FUNGSI SISWA (SCANNER) ---
+    function startScanner() {
+      if (isScannerRunning) return;
+      document.getElementById('reader-container').classList.remove('hidden');
+      document.getElementById('btnStartScan').classList.add('hidden');
+      
+      // Config Scanner lebih responsif
+      html5QrcodeScanner = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+      
+      html5QrcodeScanner.start(
+        { facingMode: "environment" }, 
+        config, 
+        async (decodedText) => {
+          stopScanner(); // Langsung matikan kamera setelah berhasil baca
+          await kirimAbsen(decodedText);
+        }, 
+        (error) => { /* Ignore frame errors */ }
+      ).then(() => {
+        isScannerRunning = true;
+      }).catch(err => {
+        alert("Gagal mengakses kamera. Pastikan izin kamera telah diberikan ke browser ini.");
+        stopScanner();
+      });
+    }
+
+    function stopScanner() {
+      if (html5QrcodeScanner && isScannerRunning) {
+        html5QrcodeScanner.stop().then(() => {
+          html5QrcodeScanner.clear();
+          isScannerRunning = false;
+        }).catch(e => console.log(e));
+      }
+      document.getElementById('reader-container').classList.add('hidden');
+      document.getElementById('btnStartScan').classList.remove('hidden');
+    }
+
+    async function kirimAbsen(qrToken) {
+      const statusRadios = document.getElementsByName('statusSholat');
+      let statusTerpilih = 'Hadir';
+      for (const radio of statusRadios) {
+        if (radio.checked) statusTerpilih = radio.value;
       }
 
-      if (!id && !data.Password) {
-        showNotice("Password wajib diisi untuk siswa baru.", "error");
-        return;
+      const payload = {
+        action: 'absen',
+        id_siswa: currentUser.id,
+        nama: currentUser.nama,
+        username: currentUser.username,
+        kelas: currentUser.kelas,
+        keterangan: statusTerpilih,
+        qr_token: qrToken
+      };
+
+      // UI Loading State
+      const btn = document.getElementById('btnStartScan');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim Data...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        
+        if(data.status === 'success') {
+          alert('✅ Sukses: ' + data.message);
+        } else {
+          alert('❌ Ditolak: ' + data.message);
+        }
+      } catch (e) {
+        alert('⚠️ Gagal terhubung ke server. Coba lagi.');
+      } finally {
+        btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Scan QR Absensi';
+        btn.disabled = false;
       }
+    }
 
-      sendMutation(data, id ? "Data siswa diperbarui." : "Siswa ditambahkan.");
-    });
-
-    function sendMutation(data, successMessage) {
-      setBusy(true);
-      pendingAction = { successMessage };
-      showNotice("Mengirim perubahan ke database...", "info");
-
-      const form = $("transportForm");
-      form.replaceChildren();
-      form.action = API_URL;
-
-      const payload = { ...data, key: API_KEY };
-
-      Object.entries(payload).forEach(([name, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = name;
-        input.value = String(value ?? "");
-        form.appendChild(input);
+    // --- FUNGSI ADMIN ---
+    function generateNewQR() {
+      // 1. Generate Token Unik
+      const uniqueToken = "QR-" + Date.now() + "-" + Math.random().toString(36).substr(2, 5).toUpperCase();
+      
+      // 2. Gambar QR Visual di UI
+      document.getElementById("qrcode").innerHTML = "";
+      new QRCode(document.getElementById("qrcode"), {
+        text: uniqueToken,
+        width: 220,
+        height: 220,
+        colorDark : "#ea580c", // Tailwind Orange-600
+        colorLight : "#f9fafb" // Tailwind Gray-50
       });
 
-      clearTimeout(requestTimer);
+      // 3. Kirim Token ke Backend secara Background (Tidak mem-block UI)
+      fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'update_token', token: uniqueToken })
+      }).catch(e => console.log('Gagal sync token ke background', e));
 
-      // Fallback jika respons postMessage tidak diterima oleh browser.
-      requestTimer = setTimeout(async () => {
-        if (!busy) return;
+      // 4. Manajemen Animasi Timer 60 Detik
+      let timeLeft = 60;
+      if(qrTimerInterval) clearInterval(qrTimerInterval);
+      
+      const bar = document.getElementById('qrProgressBar');
+      const text = document.getElementById('qrTimerText');
+      bar.style.transition = 'none'; // reset transition
+      bar.style.width = '100%';
+      
+      // Delay dikit agar transisinya jalan
+      setTimeout(() => { bar.style.transition = 'width 1s linear'; }, 50);
 
-        showNotice(
-          "Permintaan sudah dikirim. Memeriksa perubahan pada database...",
-          "info"
-        );
-
-        await verifyMutation();
-      }, 8000);
-
-      form.submit();
+      qrTimerInterval = setInterval(() => {
+        timeLeft--;
+        const percentage = (timeLeft / 60) * 100;
+        bar.style.width = Math.max(percentage, 0) + '%';
+        text.innerText = `Memperbarui dalam: ${Math.max(timeLeft, 0)} detik`;
+        
+        if (timeLeft <= 0) {
+          generateNewQR(); // Panggil diri sendiri untuk regenerasi
+        }
+      }, 1000);
     }
 
-    window.addEventListener("message", async event => {
-      // Apps Script adalah tujuan yang diharapkan; validasi bentuk pesan.
-      if (!event.data || event.data.type !== "CRUD_RESULT") return;
-      if (!busy || !pendingAction) return;
+    async function fetchLaporan() {
+      const tbody = document.getElementById('tbodyLaporan');
+      const btn = document.getElementById('btnRefresh');
+      
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-orange-500 mb-2 block"></i>Sedang menarik data dari Google Sheets...</td></tr>';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+      btn.disabled = true;
+      
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'get_laporan' })
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success' && data.data.length > 0) {
+          tbody.innerHTML = '';
+          // Urutkan data terbaru di atas
+          window.laporanData = data.data.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)); 
+          
+          window.laporanData.forEach(row => {
+            const dateObj = new Date(row.timestamp);
+            const timeStr = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const badgeClass = row.keterangan === 'Hadir' 
+              ? 'bg-green-100 text-green-700 border-green-200' 
+              : 'bg-red-100 text-red-700 border-red-200';
 
-      clearTimeout(requestTimer);
-      const result = event.data.result;
+            const tr = document.createElement('tr');
+            tr.className = "bg-white border-b hover:bg-gray-50 transition";
+            tr.innerHTML = `
+              <td class="px-5 py-4 font-medium text-gray-900">${row.tanggal}<br><span class="text-xs text-gray-500">${timeStr} WIB</span></td>
+              <td class="px-5 py-4 font-bold text-gray-900">${row.nama}<br><span class="text-xs text-gray-500 font-normal">${row.id_siswa}</span></td>
+              <td class="px-5 py-4">${row.kelas}</td>
+              <td class="px-5 py-4">
+                <span class="px-2.5 py-1 rounded border text-xs font-bold ${badgeClass}">
+                  ${row.keterangan}
+                </span>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500"><i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>Belum ada data absensi yang tercatat.</td></tr>';
+        }
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-red-500"><i class="fa-solid fa-triangle-exclamation text-3xl mb-2 block"></i>Gagal mengambil data. Cek koneksi Anda.</td></tr>';
+      } finally {
+        btn.innerHTML = '<i class="fa-solid fa-sync-alt"></i> Muat Ulang';
+        btn.disabled = false;
+      }
+    }
 
-      if (!result || !result.success) {
-        setBusy(false);
-        pendingAction = null;
-        showNotice(
-          result?.message || "Backend melaporkan kegagalan.",
-          "error"
-        );
+    function exportToExcel() {
+      if(!window.laporanData || window.laporanData.length === 0) {
+        alert("⚠️ Tidak ada data untuk diekspor!");
         return;
       }
+      
+      // Cleanup data for Excel (membuang properti id_absen dll jika tidak butuh)
+      const excelData = window.laporanData.map(r => ({
+        "Waktu": new Date(r.timestamp).toLocaleString('id-ID'),
+        "Tanggal": r.tanggal,
+        "ID Siswa": r.id_siswa,
+        "Nama Lengkap": r.nama,
+        "Kelas": r.kelas,
+        "Status": r.keterangan
+      }));
 
-      const successMessage = result.message || pendingAction.successMessage;
-      $("studentModal").classList.remove("open");
-      pendingAction = null;
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      
+      // Set Column Widths agar Excel rapi
+      const wscols = [{wch:20}, {wch:15}, {wch:15}, {wch:30}, {wch:10}, {wch:15}];
+      worksheet['!cols'] = wscols;
 
-      // Baca ulang database untuk memastikan tampilan terbaru.
-      try {
-        const latest = await apiGet("list");
-        students = Array.isArray(latest.data) ? latest.data : [];
-        renderStudents();
-        showNotice(successMessage, "success");
-      } catch (error) {
-        showNotice(
-          successMessage + " Namun daftar gagal dimuat ulang: " + error.message,
-          "info"
-        );
-      } finally {
-        setBusy(false);
-      }
-    });
-
-    async function verifyMutation() {
-      const action = pendingAction;
-      if (!action) {
-        setBusy(false);
-        return;
-      }
-
-      try {
-        const latest = await apiGet("list");
-        students = Array.isArray(latest.data) ? latest.data : [];
-        renderStudents();
-
-        // Jika backend tidak mengirim respons, data tetap diperiksa.
-        showNotice(
-          "Daftar berhasil diperiksa. Pastikan perubahan yang diminta terlihat; " +
-          "jika belum, periksa log Apps Script.",
-          "info"
-        );
-      } catch (error) {
-        showNotice(
-          "Belum bisa memastikan perubahan. " + error.message,
-          "error"
-        );
-      } finally {
-        pendingAction = null;
-        setBusy(false);
-      }
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Absensi");
+      
+      // Buat nama file dinamis sesuai tanggal hari ini
+      const dateName = new Date().toLocaleDateString('id-ID').replace(/\//g, '-');
+      XLSX.writeFile(workbook, `Rekap_Absensi_Sholat_${dateName}.xlsx`);
     }
-
-    async function deleteStudent(student) {
-      if (busy) return;
-
-      const ok = confirm(
-        'Yakin ingin menghapus siswa "' + student.Nama + '"?\n' +
-        "Data yang dihapus tidak dapat dipulihkan melalui halaman ini."
-      );
-      if (!ok) return;
-
-      sendMutation({
-        action: "delete",
-        id: student.ID
-      }, "Data siswa berhasil dihapus.");
-    }
-
-    loadStudents();
   </script>
 </body>
 </html>
