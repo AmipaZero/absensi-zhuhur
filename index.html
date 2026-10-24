@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Absensi Sholat Zhuhur - SMKF Bhakti Kencana</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Html5-Qrcode Scanner -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <!-- SheetJS (xlsx) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -21,7 +16,6 @@
 </head>
 <body class="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 min-h-screen text-slate-800 flex flex-col justify-between">
 
-    <!-- NAVBAR -->
     <header class="bg-gradient-to-r from-orange-600 via-amber-600 to-red-600 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -48,7 +42,6 @@
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow">
         
         <!-- HALAMAN LOGIN -->
@@ -71,9 +64,7 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Username</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                                <i class="fa-solid fa-user"></i>
-                            </span>
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i class="fa-solid fa-user"></i></span>
                             <input type="text" id="login-username" required class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:bg-white transition" placeholder="Masukkan username...">
                         </div>
                     </div>
@@ -81,9 +72,7 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Password</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                                <i class="fa-solid fa-lock"></i>
-                            </span>
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i class="fa-solid fa-lock"></i></span>
                             <input type="password" id="login-password" required class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:bg-white transition" placeholder="Masukkan password...">
                         </div>
                     </div>
@@ -176,27 +165,23 @@
                 </button>
             </div>
 
-            <!-- TAB 1: QR GENERATOR -->
+            <!-- TAB 1 -->
             <div id="admin-tab-qr" class="admin-tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-md border border-orange-100 p-6 max-w-xl mx-auto text-center space-y-5">
                     <div>
                         <h3 class="font-bold text-slate-800 text-lg">QR Code Absensi Dinamis</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Token QR diperbarui otomatis setiap 60 detik</p>
                     </div>
-
                     <div id="qrcode-container" class="bg-slate-50 p-6 rounded-2xl border border-slate-200 inline-block mx-auto shadow-inner">
                         <div id="qrcode" class="flex justify-center items-center"></div>
                     </div>
-
                     <div>
                         <p class="text-xs text-slate-500 mb-1">Token Aktif Saat Ini:</p>
                         <code id="active-token-text" class="text-xs font-mono font-bold bg-orange-50 text-orange-700 px-3 py-1.5 rounded-lg border border-orange-200 inline-block">-</code>
                     </div>
-
                     <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
                         <div id="qr-progress-bar" class="bg-orange-600 h-2.5 rounded-full transition-all duration-1000" style="width: 100%"></div>
                     </div>
-
                     <div class="flex gap-3 justify-center pt-2">
                         <button onclick="triggerGenerateQR()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm">
                             <i class="fa-solid fa-rotate mr-1.5"></i> Perbarui QR Sekarang
@@ -208,7 +193,7 @@
                 </div>
             </div>
 
-            <!-- TAB 2: LAPORAN REKAP -->
+            <!-- TAB 2 -->
             <div id="admin-tab-report" class="admin-tab-content hidden space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm flex items-center justify-between">
@@ -216,27 +201,21 @@
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Hadir Sholat</p>
                             <h4 id="summary-hadir" class="text-2xl font-bold text-slate-800 mt-1">0</h4>
                         </div>
-                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-person-praying"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-person-praying"></i></div>
                     </div>
                     <div class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tidak Melaksanakan</p>
                             <h4 id="summary-tidak" class="text-2xl font-bold text-slate-800 mt-1">0</h4>
                         </div>
-                        <div class="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-ban"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-ban"></i></div>
                     </div>
                     <div class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Absensi</p>
                             <h4 id="summary-total" class="text-2xl font-bold text-slate-800 mt-1">0</h4>
                         </div>
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-clipboard-user"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-clipboard-user"></i></div>
                     </div>
                 </div>
 
@@ -247,21 +226,16 @@
                             <input type="date" id="report-date" onchange="renderReportTable()" class="text-xs px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-orange-500">
                         </div>
                         <div class="flex gap-2 w-full md:w-auto justify-end">
-                            <button onclick="loadReportData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition">
-                                <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
-                            </button>
-                            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm">
-                                <i class="fa-solid fa-file-excel mr-1"></i> Download Excel
-                            </button>
+                            <button onclick="loadReportData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition"><i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh</button>
+                            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-file-excel mr-1"></i> Download Excel</button>
                         </div>
                     </div>
-
                     <div class="overflow-x-auto rounded-xl border border-slate-200">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider border-b border-slate-200">
                                 <tr>
                                     <th class="p-3">ID Absensi</th>
-                                    <th class="p-3">Waktu (Timestamp)</th>
+                                    <th class="p-3">Timestamp</th>
                                     <th class="p-3">ID Siswa</th>
                                     <th class="p-3">Nama</th>
                                     <th class="p-3">Kelas</th>
@@ -274,7 +248,7 @@
                 </div>
             </div>
 
-            <!-- TAB 3: KELOLA SISWA -->
+            <!-- TAB 3 -->
             <div id="admin-tab-siswa" class="admin-tab-content hidden space-y-6">
                 <div class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm space-y-4">
                     <div class="flex justify-between items-center">
@@ -286,7 +260,6 @@
                             <i class="fa-solid fa-user-plus mr-1.5"></i> Tambah Siswa
                         </button>
                     </div>
-
                     <div class="overflow-x-auto rounded-xl border border-slate-200">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider border-b border-slate-200">
@@ -305,26 +278,20 @@
                 </div>
             </div>
         </section>
-
     </main>
 
-    <!-- FOOTER -->
     <footer class="bg-white border-t border-slate-100 py-4 mt-8 text-center text-xs text-slate-500">
         <p>&copy; 2026 SMKF Bhakti Kencana Bogor. All rights reserved.</p>
     </footer>
 
-    <!-- MODAL CONFIG GAS URL -->
+    <!-- MODAL CONFIG -->
     <div id="modal-config" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-base">Konfigurasi Google Apps Script URL</h3>
+                <h3 class="font-bold text-slate-800 text-base">Konfigurasi GAS URL</h3>
                 <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <p class="text-xs text-slate-500">Masukkan Web App URL Google Apps Script. Jika kosong, otomatis pakai Mock Storage.</p>
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Web App URL</label>
-                <input type="text" id="config-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-orange-500">
-            </div>
+            <input type="text" id="config-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-orange-500">
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeConfigModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
                 <button onclick="saveConfigUrl()" class="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold transition shadow-sm">Simpan URL</button>
@@ -332,40 +299,28 @@
         </div>
     </div>
 
-    <!-- MODAL CRUD SISWA -->
+    <!-- MODAL SISWA -->
     <div id="modal-siswa" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
             <div class="flex justify-between items-center">
-                <h3 id="siswa-modal-title" class="font-bold text-slate-800 text-base">Tambah Siswa Baru</h3>
+                <h3 id="siswa-modal-title" class="font-bold text-slate-800 text-base">Tambah Siswa</h3>
                 <button onclick="closeSiswaModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form id="form-siswa-crud" onsubmit="handleSiswaSubmit(event)" class="space-y-3">
                 <input type="hidden" id="crud-siswa-id">
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama Lengkap</label>
-                    <input type="text" id="crud-nama" required class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-orange-500" placeholder="Contoh: Ahmad Rizky">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Username</label>
-                    <input type="text" id="crud-username" required class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-orange-500" placeholder="Contoh: ahmad123">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password</label>
-                    <input type="text" id="crud-password" required class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-orange-500" placeholder="Contoh: pass123">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Kelas</label>
-                    <input type="text" id="crud-kelas" required class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-orange-500" placeholder="Contoh: 10-A">
-                </div>
+                <input type="text" id="crud-nama" required placeholder="Nama Lengkap" class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50">
+                <input type="text" id="crud-username" required placeholder="Username" class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50">
+                <input type="text" id="crud-password" required placeholder="Password" class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50">
+                <input type="text" id="crud-kelas" required placeholder="Kelas" class="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50">
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeSiswaModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold transition shadow-sm">Simpan Data</button>
+                    <button type="button" onclick="closeSiswaModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC UTAMA -->
+    <!-- SCRIPT UTAMA -->
     <script>
         var currentUser = null;
         var activeRole = 'siswa';
@@ -397,16 +352,9 @@
             if (!payload) payload = {};
             var gasUrl = localStorage.getItem('GAS_APP_URL');
             payload.action = action;
-
-            if (!gasUrl) {
-                return handleMockBackend(action, payload);
-            }
-
+            if (!gasUrl) return handleMockBackend(action, payload);
             try {
-                var response = await fetch(gasUrl, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
+                var response = await fetch(gasUrl, { method: 'POST', body: JSON.stringify(payload) });
                 return await response.json();
             } catch (err) {
                 return handleMockBackend(action, payload);
@@ -461,12 +409,8 @@
                 localStorage.setItem('mock_absensi', JSON.stringify(absensi));
                 return { status: 'success', message: 'Absensi berhasil dicatat!' };
             }
-            if (action === 'get_report') {
-                return { status: 'success', data: absensi };
-            }
-            if (action === 'get_siswa_list') {
-                return { status: 'success', data: siswa };
-            }
+            if (action === 'get_report') return { status: 'success', data: absensi };
+            if (action === 'get_siswa_list') return { status: 'success', data: siswa };
             if (action === 'add_siswa') {
                 var exists = siswa.some(function(s) { return s.username.toLowerCase() === data.username.toLowerCase(); });
                 if (exists) return { status: 'error', message: 'Username sudah digunakan!' };
@@ -521,7 +465,6 @@
             var username = document.getElementById('login-username').value.trim();
             var password = document.getElementById('login-password').value.trim();
             var action = activeRole === 'siswa' ? 'login_siswa' : 'login_guru';
-
             var res = await callAPI(action, { username: username, password: password });
             if (res.status === 'success') {
                 currentUser = res;
@@ -557,9 +500,7 @@
             var res = await callAPI('get_report');
             if (res.status === 'success') {
                 var today = new Date().toISOString().split('T')[0];
-                var found = res.data.find(function(a) { 
-                    return (a.username === currentUser.username || a.idSiswa === currentUser.id) && a.tanggal === today; 
-                });
+                var found = res.data.find(function(a) { return (a.username === currentUser.username || a.idSiswa === currentUser.id) && a.tanggal === today; });
                 var statusEl = document.getElementById('siswa-status-today');
                 if (found) {
                     statusEl.innerText = found.keterangan;
@@ -595,38 +536,24 @@
                     await processAbsenSubmission(decodedText);
                 },
                 function(err) {}
-            ).catch(function(err) {
-                alert("Gagal membuka kamera: " + err);
-            });
+            ).catch(function(err) { alert("Gagal membuka kamera: " + err); });
         }
 
         function stopScanner() {
             if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(function() {
-                    html5QrCode.clear();
-                }).catch(function(err) {});
+                html5QrCode.stop().then(function() { html5QrCode.clear(); }).catch(function(err) {});
             }
         }
 
         function submitManualAbsen() {
             var token = document.getElementById('manual-token-input').value.trim();
-            if (!token) {
-                alert("Masukkan token QR terlebih dahulu!");
-                return;
-            }
+            if (!token) { alert("Masukkan token QR!"); return; }
             processAbsenSubmission(token);
         }
 
         async function processAbsenSubmission(token) {
             var selectedStatus = document.querySelector('input[name="status_sholat"]:checked').value;
-            var payload = {
-                action: 'submit_absen',
-                token: token,
-                username: currentUser.username,
-                idSiswa: currentUser.id,
-                keterangan: selectedStatus
-            };
-
+            var payload = { action: 'submit_absen', token: token, username: currentUser.username, idSiswa: currentUser.id, keterangan: selectedStatus };
             var res = await callAPI('submit_absen', payload);
             alert(res.message);
             checkTodayAttendanceStatus();
@@ -634,9 +561,7 @@
 
         function switchAdminTab(tab) {
             var contents = document.querySelectorAll('.admin-tab-content');
-            for (var i = 0; i < contents.length; i++) {
-                contents[i].classList.add('hidden');
-            }
+            for (var i = 0; i < contents.length; i++) contents[i].classList.add('hidden');
             document.getElementById('tab-btn-qr').className = "flex-1 min-w-[140px] py-2.5 px-4 text-xs font-bold rounded-xl transition text-slate-600 hover:bg-slate-50";
             document.getElementById('tab-btn-report').className = "flex-1 min-w-[140px] py-2.5 px-4 text-xs font-bold rounded-xl transition text-slate-600 hover:bg-slate-50";
             document.getElementById('tab-btn-siswa').className = "flex-1 min-w-[140px] py-2.5 px-4 text-xs font-bold rounded-xl transition text-slate-600 hover:bg-slate-50";
@@ -667,20 +592,11 @@
                 document.getElementById('active-token-text').innerText = res.token;
                 var qrContainer = document.getElementById('qrcode');
                 qrContainer.innerHTML = "";
-                new QRCode(qrContainer, {
-                    text: res.token,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#c2410c",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+                new QRCode(qrContainer, { text: res.token, width: 200, height: 200, colorDark: "#c2410c", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
             }
         }
 
-        function triggerGenerateQR() {
-            generateAndUpdateQR();
-        }
+        function triggerGenerateQR() { generateAndUpdateQR(); }
 
         async function triggerDeleteQR() {
             var res = await callAPI('delete_qr_token');
@@ -691,10 +607,7 @@
 
         async function loadReportData() {
             var res = await callAPI('get_report');
-            if (res.status === 'success') {
-                reportList = res.data;
-                renderReportTable();
-            }
+            if (res.status === 'success') { reportList = res.data; renderReportTable(); }
         }
 
         function renderReportTable() {
@@ -702,9 +615,7 @@
             var dateFilter = document.getElementById('report-date').value;
             var tbody = document.getElementById('report-table-body');
             tbody.innerHTML = "";
-
-            var totalHadir = 0;
-            var totalTidak = 0;
+            var totalHadir = 0, totalTidak = 0;
 
             var filtered = reportList.filter(function(item) {
                 var matchSearch = (item.nama && item.nama.toLowerCase().indexOf(search) !== -1) ||
@@ -715,13 +626,10 @@
             });
 
             filtered.forEach(function(item) {
-                if (item.keterangan === 'Hadir') totalHadir++;
-                else totalTidak++;
-
+                if (item.keterangan === 'Hadir') totalHadir++; else totalTidak++;
                 var tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition";
-                tr.innerHTML = 
-                    '<td class="p-3 font-mono font-semibold text-slate-600">' + (item.id || '-') + '</td>' +
+                tr.innerHTML = '<td class="p-3 font-mono font-semibold text-slate-600">' + (item.id || '-') + '</td>' +
                     '<td class="p-3 text-slate-600">' + item.timestamp + '</td>' +
                     '<td class="p-3 font-mono font-bold text-orange-600">' + (item.idSiswa || '-') + '</td>' +
                     '<td class="p-3 font-semibold text-slate-800">' + item.nama + '</td>' +
@@ -736,26 +644,18 @@
         }
 
         function exportToExcel() {
-            if (reportList.length === 0) {
-                alert("Tidak ada data rekap untuk diexport!");
-                return;
-            }
+            if (reportList.length === 0) { alert("Tidak ada data rekap!"); return; }
             var wsData = [["ID Absensi", "Timestamp", "Tanggal", "ID Siswa", "Nama", "Username", "Kelas", "Keterangan"]];
-            reportList.forEach(function(r) {
-                wsData.push([r.id, r.timestamp, r.tanggal, r.idSiswa, r.nama, r.username, r.kelas, r.keterangan]);
-            });
+            reportList.forEach(function(r) { wsData.push([r.id, r.timestamp, r.tanggal, r.idSiswa, r.nama, r.username, r.kelas, r.keterangan]); });
             var wb = XLSX.utils.book_new();
             var ws = XLSX.utils.aoa_to_sheet(wsData);
-            XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi Zhuhur");
-            XLSX.writeFile(wb, "Rekap_Absensi_Zhuhur_SMKF.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
+            XLSX.writeFile(wb, "Rekap_Absensi_Zhuhur.xlsx");
         }
 
         async function loadSiswaData() {
             var res = await callAPI('get_siswa_list');
-            if (res.status === 'success') {
-                siswaList = res.data;
-                renderSiswaTable();
-            }
+            if (res.status === 'success') { siswaList = res.data; renderSiswaTable(); }
         }
 
         function renderSiswaTable() {
@@ -764,42 +664,39 @@
             siswaList.forEach(function(s) {
                 var tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition";
-                tr.innerHTML = 
-                    '<td class="p-3 font-mono font-bold text-orange-600">' + s.id + '</td>' +
+                tr.innerHTML = '<td class="p-3 font-mono font-bold text-orange-600">' + s.id + '</td>' +
                     '<td class="p-3 font-semibold text-slate-800">' + s.nama + '</td>' +
                     '<td class="p-3 text-slate-600">' + s.username + '</td>' +
                     '<td class="p-3 text-slate-600">••••••</td>' +
                     '<td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold text-[10px]">' + s.kelas + '</span></td>' +
                     '<td class="p-3 text-center space-x-1">' +
-                        '<button onclick=\'openSiswaModal("edit", ' + JSON.stringify(s) + ')\' class="bg-amber-50 hover:bg-amber-100 text-amber-700 p-1.5 rounded-lg transition" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button> ' +
-                        '<button onclick=\'deleteSiswaItem("' + s.id + '")\' class="bg-red-50 hover:bg-red-100 text-red-700 p-1.5 rounded-lg transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>' +
+                        '<button type="button" onclick="openSiswaModalEdit(\'' + s.id + '\')" class="bg-amber-50 text-amber-700 p-1.5 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button> ' +
+                        '<button type="button" onclick="deleteSiswaItem(\'' + s.id + '\')" class="bg-red-50 text-red-700 p-1.5 rounded-lg"><i class="fa-solid fa-trash"></i></button>' +
                     '</td>';
                 tbody.appendChild(tr);
             });
         }
 
-        function openSiswaModal(mode, data) {
+        function openSiswaModal(mode) {
             document.getElementById('modal-siswa').classList.remove('hidden');
-            var title = document.getElementById('siswa-modal-title');
-            var form = document.getElementById('form-siswa-crud');
-            form.reset();
-
-            if (mode === 'add') {
-                title.innerText = "Tambah Siswa Baru";
-                document.getElementById('crud-siswa-id').value = "";
-            } else {
-                title.innerText = "Edit Data Siswa";
-                document.getElementById('crud-siswa-id').value = data.id;
-                document.getElementById('crud-nama').value = data.nama;
-                document.getElementById('crud-username').value = data.username;
-                document.getElementById('crud-password').value = data.password;
-                document.getElementById('crud-kelas').value = data.kelas;
-            }
+            document.getElementById('siswa-modal-title').innerText = "Tambah Siswa Baru";
+            document.getElementById('form-siswa-crud').reset();
+            document.getElementById('crud-siswa-id').value = "";
         }
 
-        function closeSiswaModal() {
-            document.getElementById('modal-siswa').classList.add('hidden');
+        function openSiswaModalEdit(id) {
+            var s = siswaList.find(function(item) { return item.id === id; });
+            if (!s) return;
+            document.getElementById('modal-siswa').classList.remove('hidden');
+            document.getElementById('siswa-modal-title').innerText = "Edit Data Siswa";
+            document.getElementById('crud-siswa-id').value = s.id;
+            document.getElementById('crud-nama').value = s.nama;
+            document.getElementById('crud-username').value = s.username;
+            document.getElementById('crud-password').value = s.password;
+            document.getElementById('crud-kelas').value = s.kelas;
         }
+
+        function closeSiswaModal() { document.getElementById('modal-siswa').classList.add('hidden'); }
 
         async function handleSiswaSubmit(e) {
             e.preventDefault();
@@ -811,7 +708,6 @@
                 password: document.getElementById('crud-password').value,
                 kelas: document.getElementById('crud-kelas').value
             };
-
             var action = id ? 'update_siswa' : 'add_siswa';
             var res = await callAPI(action, payload);
             alert(res.message);
@@ -820,7 +716,7 @@
         }
 
         async function deleteSiswaItem(id) {
-            if (confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
+            if (confirm("Yakin ingin menghapus siswa ini?")) {
                 var res = await callAPI('delete_siswa', { id: id });
                 alert(res.message);
                 loadSiswaData();
@@ -831,27 +727,17 @@
             document.getElementById('modal-config').classList.remove('hidden');
             document.getElementById('config-gas-url').value = localStorage.getItem('GAS_APP_URL') || '';
         }
-        function closeConfigModal() {
-            document.getElementById('modal-config').classList.add('hidden');
-        }
+        function closeConfigModal() { document.getElementById('modal-config').classList.add('hidden'); }
         function saveConfigUrl() {
             var url = document.getElementById('config-gas-url').value.trim();
-            if (url) {
-                localStorage.setItem('GAS_APP_URL', https://script.google.com/macros/s/AKfycbxzAK6R46xI-Kgv1ArhkIi1x_rvAFUaFx364D-OKjWhyYIHxJlPD-fNYJvjPqfLcT0FsA/exec);
-                alert("GAS Web App URL berhasil disimpan!");
-            } else {
-                localStorage.removeItem('GAS_APP_URL');
-                alert("URL dikosongkan. Sistem kembali menggunakan Mock Storage.");
-            }
+            if (url) { localStorage.setItem('GAS_APP_URL', https://script.google.com/macros/s/AKfycbxzAK6R46xI-Kgv1ArhkIi1x_rvAFUaFx364D-OKjWhyYIHxJlPD-fNYJvjPqfLcT0FsA/exec); alert("URL Berhasil Disimpan!"); }
+            else { localStorage.removeItem('GAS_APP_URL'); alert("URL Dikosongkan (Mock Mode)"); }
             closeConfigModal();
         }
 
         window.onload = function() {
             var savedUser = localStorage.getItem('current_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                initDashboard();
-            }
+            if (savedUser) { currentUser = JSON.parse(savedUser); initDashboard(); }
         };
     </script>
 </body>
