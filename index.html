@@ -319,6 +319,411 @@
 
   <footer>SMK Farmasi Bhakti Kencana · Data dikelola melalui Google Sheets</footer>
 
+  <div class="modal" id="studentModal" role="dialog"
+    aria-modal="true" aria-labelledby="formTitle">
+    <div class="dialog">
+      <h2 id="formTitle">Tambah siswa</h2>
+      <p class="hint" id="formHint">Isi data siswa di bawah ini.</p>
 
+      <form id="studentForm">
+        <input type="hidden" id="studentId">
+
+        <div class="field">
+          <label for="nama">Nama lengkap</label>
+          <input id="nama" maxlength="100" required autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" maxlength="60" required autocomplete="username">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" minlength="1"
+            autocomplete="new-password">
+          <div class="hint" style="margin:6px 0 0" id="passwordHint">
+            Wajib diisi untuk siswa baru.
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="kelas">Kelas</label>
+          <input id="kelas" maxlength="50" required
+            placeholder="Contoh: X Farmasi 1">
+        </div>
+
+        <div class="dialog-actions">
+          <button class="secondary" type="button"
+            onclick="closeForm()">Batal</button>
+          <button class="primary" type="submit" id="saveBtn">
+            Simpan siswa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Form POST menuju iframe agar tidak memerlukan fetch lintas domain. -->
+  <iframe name="apiFrame" id="apiFrame" title="Pemroses data"
+    style="display:none"></iframe>
+  <form id="transportForm" method="POST" target="apiFrame"
+    style="display:none"></form>
+
+  <script>
+    "use strict";
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbwmZRVQl6IQSep2QOMo5YyjQUB9YHJ3aPZ5sFSEHTgb_cyvbSYvE8lBz82FxOmrRaHCCw/exec";
+    const API_KEY = "rahasia";
+
+    let students = [];
+    let busy = false;
+    let pendingAction = null;
+    let requestTimer = null;
+    let jsonpTimer = null;
+
+    const $ = id => document.getElementById(id);
+
+    function showNotice(message, type = "info") {
+      const el = $("notice");
+      el.textContent = message;
+      el.className = "notice show " + type;
+    }
+
+    function hideNotice() {
+      $("notice").className = "notice";
+      $("notice").textContent = "";
+    }
+
+    function setBusy(value) {
+      busy = value;
+      $("saveBtn").disabled = value;
+      $("addBtn").disabled = value;
+      $("refreshBtn").disabled = value;
+      $("saveBtn").textContent = value ? "Memproses..." : "Simpan siswa";
+    }
+
+    // JSONP untuk GET: browser memuat script, bukan fetch lintas domain.
+    function apiGet(action, params = {}) {
+      return new Promise((resolve, reject) => {
+        const callbackName =
+          "apiCallback_" + Date.now() + "_" +
+          Math.random().toString(36).slice(2);
+
+        const script = document.createElement("script");
+        const url = new URL(API_URL);
+
+        url.searchParams.set("action", action);
+        url.searchParams.set("key", API_KEY);
+        url.searchParams.set("callback", callbackName);
+        url.searchParams.set("_", Date.now());
+
+        Object.entries(params).forEach(([key, value]) => {
+          url.searchParams.set(key, value);
+        });
+
+        let finished = false;
+
+        function cleanup() {
+          if (finished) return;
+          finished = true;
+          clearTimeout(jsonpTimer);
+          delete window[callbackName];
+          script.remove();
+        }
+
+        window[callbackName] = data => {
+          cleanup();
+          if (data && data.success) {
+            resolve(data);
+          } else {
+            reject(new Error(data?.message || "Permintaan gagal."));
+          }
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error(
+            "Tidak dapat menghubungi API. Periksa URL deployment dan akses Web App."
+          ));
+        };
+
+        jsonpTimer = setTimeout(() => {
+          cleanup();
+          reject(new Error(
+            "Waktu tunggu API habis. Periksa deployment Apps Script."
+          ));
+        }, 15000);
+
+        script.src = url.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    function renderStudents() {
+      const query = $("search").value.trim().toLowerCase();
+
+      const filtered = students.filter(s =>
+        [s.Nama, s.Username, s.Kelas]
+          .some(v => String(v || "").toLowerCase().includes(query))
+      );
+
+      $("count").textContent =
+        filtered.length + " siswa ditampilkan · " +
+        students.length + " total data";
+
+      const tbody = $("studentRows");
+      tbody.replaceChildren();
+
+      if (filtered.length === 0) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 5;
+        td.className = "empty";
+        td.textContent = students.length
+          ? "Tidak ada siswa yang cocok dengan pencarian."
+          : "Belum ada data siswa. Klik Tambah siswa untuk memulai.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      filtered.forEach((student, index) => {
+        const tr = document.createElement("tr");
+
+        [
+          String(index + 1),
+          student.Nama || "",
+          student.Username || "",
+          student.Kelas || ""
+        ].forEach(value => {
+          const td = document.createElement("td");
+          td.textContent = value;
+          tr.appendChild(td);
+        });
+
+        const actionTd = document.createElement("td");
+        const actionBox = document.createElement("div");
+        actionBox.className = "row-actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "secondary small";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => openForm(student));
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "danger small";
+        deleteBtn.textContent = "Hapus";
+        deleteBtn.addEventListener("click", () => deleteStudent(student));
+
+        actionBox.append(editBtn, deleteBtn);
+        actionTd.appendChild(actionBox);
+        tr.appendChild(actionTd);
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadStudents() {
+      hideNotice();
+      $("count").textContent = "Memuat data...";
+
+      try {
+        const result = await apiGet("list");
+        students = Array.isArray(result.data) ? result.data : [];
+        renderStudents();
+      } catch (error) {
+        $("count").textContent = "Data gagal dimuat";
+        $("studentRows").innerHTML =
+          '<tr><td colspan="5" class="empty"></td></tr>';
+        $("studentRows").querySelector(".empty").textContent = error.message;
+        showNotice(error.message, "error");
+      }
+    }
+
+    function openForm(student = null) {
+      if (busy) return;
+
+      $("studentForm").reset();
+      $("studentId").value = student ? student.ID : "";
+      $("formTitle").textContent = student ? "Edit siswa" : "Tambah siswa";
+      $("formHint").textContent = student
+        ? "Perbarui informasi siswa. Password boleh dikosongkan jika tidak ingin mengubahnya."
+        : "Masukkan informasi siswa yang akan disimpan.";
+      $("passwordHint").textContent = student
+        ? "Kosongkan jika password tidak ingin diubah."
+        : "Wajib diisi untuk siswa baru.";
+      $("password").required = !student;
+
+      if (student) {
+        $("nama").value = student.Nama || "";
+        $("username").value = student.Username || "";
+        $("kelas").value = student.Kelas || "";
+      }
+
+      $("studentModal").classList.add("open");
+      $("nama").focus();
+    }
+
+    function closeForm() {
+      if (busy) return;
+      $("studentModal").classList.remove("open");
+    }
+
+    $("studentModal").addEventListener("click", event => {
+      if (event.target === $("studentModal")) closeForm();
+    });
+
+    $("search").addEventListener("input", renderStudents);
+
+    $("studentForm").addEventListener("submit", event => {
+      event.preventDefault();
+      if (busy) return;
+
+      const id = $("studentId").value.trim();
+      const data = {
+        action: id ? "update" : "create",
+        ID: id,
+        Nama: $("nama").value.trim(),
+        Username: $("username").value.trim(),
+        Password: $("password").value,
+        Kelas: $("kelas").value.trim()
+      };
+
+      if (!data.Nama || !data.Username || !data.Kelas) {
+        showNotice("Nama, username, dan kelas wajib diisi.", "error");
+        return;
+      }
+
+      if (!id && !data.Password) {
+        showNotice("Password wajib diisi untuk siswa baru.", "error");
+        return;
+      }
+
+      sendMutation(data, id ? "Data siswa diperbarui." : "Siswa ditambahkan.");
+    });
+
+    function sendMutation(data, successMessage) {
+      setBusy(true);
+      pendingAction = { successMessage };
+      showNotice("Mengirim perubahan ke database...", "info");
+
+      const form = $("transportForm");
+      form.replaceChildren();
+      form.action = API_URL;
+
+      const payload = { ...data, key: API_KEY };
+
+      Object.entries(payload).forEach(([name, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = String(value ?? "");
+        form.appendChild(input);
+      });
+
+      clearTimeout(requestTimer);
+
+      // Fallback jika respons postMessage tidak diterima oleh browser.
+      requestTimer = setTimeout(async () => {
+        if (!busy) return;
+
+        showNotice(
+          "Permintaan sudah dikirim. Memeriksa perubahan pada database...",
+          "info"
+        );
+
+        await verifyMutation();
+      }, 8000);
+
+      form.submit();
+    }
+
+    window.addEventListener("message", async event => {
+      // Apps Script adalah tujuan yang diharapkan; validasi bentuk pesan.
+      if (!event.data || event.data.type !== "CRUD_RESULT") return;
+      if (!busy || !pendingAction) return;
+
+      clearTimeout(requestTimer);
+      const result = event.data.result;
+
+      if (!result || !result.success) {
+        setBusy(false);
+        pendingAction = null;
+        showNotice(
+          result?.message || "Backend melaporkan kegagalan.",
+          "error"
+        );
+        return;
+      }
+
+      const successMessage = result.message || pendingAction.successMessage;
+      $("studentModal").classList.remove("open");
+      pendingAction = null;
+
+      // Baca ulang database untuk memastikan tampilan terbaru.
+      try {
+        const latest = await apiGet("list");
+        students = Array.isArray(latest.data) ? latest.data : [];
+        renderStudents();
+        showNotice(successMessage, "success");
+      } catch (error) {
+        showNotice(
+          successMessage + " Namun daftar gagal dimuat ulang: " + error.message,
+          "info"
+        );
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    async function verifyMutation() {
+      const action = pendingAction;
+      if (!action) {
+        setBusy(false);
+        return;
+      }
+
+      try {
+        const latest = await apiGet("list");
+        students = Array.isArray(latest.data) ? latest.data : [];
+        renderStudents();
+
+        // Jika backend tidak mengirim respons, data tetap diperiksa.
+        showNotice(
+          "Daftar berhasil diperiksa. Pastikan perubahan yang diminta terlihat; " +
+          "jika belum, periksa log Apps Script.",
+          "info"
+        );
+      } catch (error) {
+        showNotice(
+          "Belum bisa memastikan perubahan. " + error.message,
+          "error"
+        );
+      } finally {
+        pendingAction = null;
+        setBusy(false);
+      }
+    }
+
+    async function deleteStudent(student) {
+      if (busy) return;
+
+      const ok = confirm(
+        'Yakin ingin menghapus siswa "' + student.Nama + '"?\n' +
+        "Data yang dihapus tidak dapat dipulihkan melalui halaman ini."
+      );
+      if (!ok) return;
+
+      sendMutation({
+        action: "delete",
+        id: student.ID
+      }, "Data siswa berhasil dihapus.");
+    }
+
+    loadStudents();
+  </script>
 </body>
 </html>
