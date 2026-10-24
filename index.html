@@ -1,1339 +1,257 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Absensi Sholat Zhuhur - SMKF BHAKTI KENCANA</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- QRCode.js for generating QR code -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Html5-Qrcode for scanning QR via camera -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <!-- SheetJS for exporting to Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#fff7ed',
-              100: '#ffedd5',
-              200: '#fed7aa',
-              500: '#f97316',
-              600: '#ea580c',
-              700: '#c2410c',
-              800: '#9a3412',
-            },
-            accent: {
-              50: '#fef2f2',
-              100: '#fee2e2',
-              500: '#ef4444',
-              600: '#dc2626',
-              700: '#b91c1c',
-              800: '#991b1b',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #fff7ed;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #fdba74;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #f97316;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Data Siswa - SMK</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-orange-50 via-amber-50 to-red-50 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-orange-500 selection:text-white">
+<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen font-sans text-gray-800">
 
-  <!-- TOP HEADER / NAVBAR -->
-  <header class="bg-gradient-to-r from-orange-600 via-red-600 to-amber-700 text-white shadow-xl sticky top-0 z-50 border-b border-orange-500/30">
-    <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-white/15 p-2.5 rounded-2xl backdrop-blur-md border border-white/20 shadow-inner">
-          <i class="fa-solid font-bold fa-mosque text-amber-200 text-2xl"></i>
-        </div>
-        <div>
-          <h1 class="font-black text-lg sm:text-xl leading-tight tracking-wide drop-shadow-sm">Absensi Zhuhur</h1>
-          <p class="text-[11px] text-orange-100/90 font-medium">SMKF BHAKTI KENCANA</p>
-        </div>
-      </div>
-
-      <!-- User Info / Actions -->
-      <div class="flex items-center space-x-2">
-        <button onclick="openConfigModal()" title="Pengaturan Backend URL" class="bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-xl text-xs font-bold transition border border-white/20">
-          <i class="fa-solid fa-gear text-amber-200"></i>
-        </button>
-        <div id="nav-user-info" class="hidden flex items-center space-x-3">
-          <div class="text-right hidden sm:block">
-            <p id="user-display-name" class="font-extrabold text-sm leading-none text-white"></p>
-            <p id="user-display-role" class="text-[10px] text-amber-200 mt-1 uppercase font-mono tracking-wider font-bold"></p>
-          </div>
-          <button onclick="logout()" class="bg-red-900/80 hover:bg-red-900 text-white p-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-md border border-red-700/50">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span class="hidden sm:inline">Keluar</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-6xl mx-auto w-full px-4 py-6 flex-grow">
-
-    <!-- ALERT MESSAGE BOX -->
-    <div id="alert-box" class="hidden mb-6 p-4 rounded-2xl flex items-center justify-between shadow-md transition-all duration-300">
-      <div class="flex items-center gap-3">
-        <i id="alert-icon" class="text-xl"></i>
-        <span id="alert-message" class="text-sm font-semibold"></span>
-      </div>
-      <button onclick="closeAlert()" class="text-slate-400 hover:text-slate-600 p-1">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-
-    <!-- 1. LOGIN SECTION -->
-    <section id="section-login" class="max-w-md mx-auto bg-white rounded-3xl shadow-2xl border border-orange-100 p-6 sm:p-8">
-      <div class="text-center mb-6">
-        <div class="inline-flex p-4 bg-gradient-to-br from-orange-500 via-red-500 to-amber-600 text-white rounded-3xl shadow-lg shadow-orange-500/30 mb-3 border border-orange-400/40">
-          <i class="fa-solid fa-user-lock text-3xl"></i>
-        </div>
-        <h2 class="text-2xl font-black text-slate-800">Masuk Akun</h2>
-        <p class="text-xs font-semibold text-orange-600 mt-1">SMKF BHAKTI KENCANA</p>
-      </div>
-
-      <!-- Role Switcher -->
-      <div class="grid grid-cols-2 gap-1.5 bg-orange-100/60 p-1.5 rounded-2xl mb-6 border border-orange-200/80">
-        <button type="button" id="btn-role-siswa" onclick="setLoginRole('siswa')" 
-          class="py-2.5 text-xs font-extrabold rounded-xl transition-all shadow-md bg-gradient-to-r from-orange-600 to-red-600 text-white">
-          <i class="fa-solid fa-user-graduate mr-1.5"></i> Siswa
-        </button>
-        <button type="button" id="btn-role-guru" onclick="setLoginRole('guru')" 
-          class="py-2.5 text-xs font-extrabold rounded-xl text-slate-600 hover:text-slate-800 transition-all">
-          <i class="fa-solid fa-chalkboard-user mr-1.5"></i> Guru / Admin
-        </button>
-      </div>
-
-      <form onsubmit="handleLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Username</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-orange-500">
-              <i class="fa-solid fa-user text-sm"></i>
-            </span>
-            <input type="text" id="login-username" required placeholder="Masukkan username" 
-              class="w-full pl-10 pr-4 py-2.5 text-sm bg-orange-50/30 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-orange-500">
-              <i class="fa-solid fa-key text-sm"></i>
-            </span>
-            <input type="password" id="login-password" required placeholder="Masukkan password" 
-              class="w-full pl-10 pr-4 py-2.5 text-sm bg-orange-50/30 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
-          </div>
-        </div>
-
-        <button type="submit" id="btn-submit-login" 
-          class="w-full mt-2 bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 hover:from-orange-700 hover:to-red-700 active:scale-[0.98] text-white font-black py-3.5 rounded-xl shadow-lg shadow-orange-600/30 text-sm transition flex items-center justify-center gap-2">
-          <span>Masuk Sistem</span>
-          <i class="fa-solid fa-arrow-right text-xs"></i>
-        </button>
-      </form>
-
-      <!-- URL BACKEND QUICK INPUT (DIRECT AT LOGIN PAGE) -->
-      <div class="mt-6 p-3.5 bg-orange-50/80 rounded-2xl border border-orange-200 text-left">
-        <div class="flex justify-between items-center mb-1.5">
-          <label class="text-[11px] font-extrabold text-orange-900 flex items-center gap-1.5">
-            <i class="fa-solid fa-link text-orange-600"></i> Google Apps Script URL:
-          </label>
-          <span id="url-status-badge" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 uppercase">
-            Belum Diset
-          </span>
-        </div>
-        <div class="flex gap-1.5">
-          <input type="text" id="quick-gas-url" placeholder="Paste URL Web App Apps Script di sini..." 
-            class="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 font-mono">
-          <button onclick="saveQuickUrl()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition">
-            Simpan
-          </button>
-        </div>
-        <p class="text-[10px] text-slate-500 mt-1">*URL ini akan tersimpan otomatis di LocalStorage browser Anda.</p>
-      </div>
-
-      <!-- DEMO HELPER -->
-      <div class="mt-6 pt-5 border-t border-slate-100 text-center">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Akun Contoh (Mode Latihan Demo)</p>
-        <div class="flex justify-center gap-2 text-xs">
-          <button onclick="fillDemo('ahmad123', 'pass123', 'siswa')" class="bg-orange-100/70 hover:bg-orange-200 border border-orange-300 text-orange-900 px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition">
-            Siswa: ahmad123
-          </button>
-          <button onclick="fillDemo('admin', 'admin123', 'guru')" class="bg-red-100/70 hover:bg-red-200 border border-red-300 text-red-900 px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition">
-            Guru: admin
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. SISWA DASHBOARD (SCANNER & STATUS) -->
-    <section id="section-siswa" class="hidden max-w-lg mx-auto space-y-6">
-      <!-- Profile Card -->
-      <div class="bg-white rounded-3xl p-6 shadow-md border border-orange-100 flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 via-red-500 to-amber-600 text-white font-black text-xl flex items-center justify-center shadow-md shadow-orange-500/30 border border-white/20">
-            <span id="siswa-avatar">A</span>
-          </div>
-          <div>
-            <h3 id="siswa-nama" class="font-extrabold text-slate-800 text-base">Nama Siswa</h3>
-            <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
-              <span>Kelas: <strong id="siswa-kelas" class="text-orange-700 font-extrabold">10-A</strong></span>
-              <span>•</span>
-              <span id="siswa-username-display" class="font-mono text-slate-600">ahmad123</span>
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-orange-600 to-amber-500 shadow-lg text-white py-4 px-6 mb-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold">Manajemen Data Siswa</h1>
+                <p class="text-amber-100 text-sm">Sistem CRUD Terintegrasi Google Apps Script</p>
             </div>
-          </div>
-        </div>
-        <div class="bg-orange-100 text-orange-900 px-3 py-1 rounded-full text-xs font-extrabold border border-orange-300">
-          Siswa
-        </div>
-      </div>
-
-      <!-- Form Absensi Options -->
-      <div class="bg-white rounded-3xl p-6 shadow-md border border-orange-100 space-y-5">
-        <div>
-          <h4 class="font-extrabold text-slate-800 text-sm mb-1">Status Kehadiran Sholat Zhuhur</h4>
-          <p class="text-xs text-slate-500">Pilih status sholat Anda sebelum memindai QR Code Guru.</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <!-- Option 1: Sholat (Hadir) -->
-          <label class="cursor-pointer">
-            <input type="radio" name="keterangan_sholat" value="solat" checked class="peer hidden">
-            <div class="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 peer-checked:border-orange-500 peer-checked:bg-orange-50/80 peer-checked:text-orange-900 text-slate-600 transition text-center space-y-1 shadow-sm">
-              <i class="fa-solid fa-circle-check text-2xl text-orange-600"></i>
-              <p class="font-black text-sm">Sholat</p>
-              <p class="text-[10px] font-bold text-slate-400 peer-checked:text-orange-700">STATUS: HADIR</p>
+            <!-- Konfigurasi URL API GAS -->
+            <div class="flex items-center gap-2 bg-white/10 p-2 rounded-lg backdrop-blur-sm w-full md:w-auto">
+                <input type="text" id="config-gas-url" placeholder="Paste URL Web App GAS di sini..." 
+                    class="px-3 py-1.5 rounded text-sm text-gray-800 bg-amber-50 focus:outline-none w-full md:w-80">
+                <button onclick="saveConfigUrl()" class="bg-amber-400 hover:bg-amber-300 text-orange-950 px-4 py-1.5 rounded text-sm font-semibold transition">
+                    Simpan
+                </button>
             </div>
-          </label>
-
-          <!-- Option 2: Tidak Sholat (Tidak Melaksanakan) -->
-          <label class="cursor-pointer">
-            <input type="radio" name="keterangan_sholat" value="tidak_solat" class="peer hidden">
-            <div class="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 peer-checked:border-red-600 peer-checked:bg-red-50/80 peer-checked:text-red-900 text-slate-600 transition text-center space-y-1 shadow-sm">
-              <i class="fa-solid fa-circle-xmark text-2xl text-red-600"></i>
-              <p class="font-black text-sm">Tidak Sholat</p>
-              <p class="text-[10px] font-bold text-slate-400 peer-checked:text-red-700">TIDAK MELAKSANAKAN</p>
-            </div>
-          </label>
         </div>
+    </header>
 
-        <!-- Camera Scanner Section -->
-        <div class="pt-2">
-          <button id="btn-start-scan" onclick="startScanner()" 
-            class="w-full bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 hover:from-orange-700 hover:to-red-700 text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-lg shadow-orange-600/30 text-sm transition flex items-center justify-center gap-2 active:scale-[0.98]">
-            <i class="fa-solid fa-qrcode text-lg"></i>
-            <span>Buka Kamera & Scan QR Guru</span>
-          </button>
-          
-          <button id="btn-stop-scan" onclick="stopScanner()" 
-            class="hidden w-full mt-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-4 rounded-2xl text-xs transition">
-            Hentikan Kamera
-          </button>
-        </div>
-
-        <!-- Reader Canvas Container -->
-        <div id="reader-container" class="hidden overflow-hidden rounded-2xl border-2 border-dashed border-orange-500 p-2 bg-slate-900">
-          <div id="reader" class="w-full"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. GURU DASHBOARD (QR, LAPORAN & CRUD SISWA) -->
-    <section id="section-guru" class="hidden space-y-6">
-      <!-- Navigation Tabs for Guru -->
-      <div class="flex flex-wrap bg-white p-1.5 rounded-2xl shadow-sm border border-orange-100 max-w-xl mx-auto gap-1">
-        <button id="tab-btn-qr" onclick="switchGuruTab('qr')" 
-          class="flex-1 py-2.5 px-3 rounded-xl font-extrabold text-xs transition flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-md">
-          <i class="fa-solid fa-qrcode text-sm"></i>
-          <span>QR Generator</span>
-        </button>
-        <button id="tab-btn-report" onclick="switchGuruTab('report')" 
-          class="flex-1 py-2.5 px-3 rounded-xl font-extrabold text-xs transition flex items-center justify-center gap-2 text-slate-600 hover:text-slate-800">
-          <i class="fa-solid fa-chart-line text-sm"></i>
-          <span>Laporan</span>
-        </button>
-        <button id="tab-btn-crud" onclick="switchGuruTab('crud')" 
-          class="flex-1 py-2.5 px-3 rounded-xl font-extrabold text-xs transition flex items-center justify-center gap-2 text-slate-600 hover:text-slate-800">
-          <i class="fa-solid fa-users-gear text-sm"></i>
-          <span>Kelola Siswa</span>
-        </button>
-      </div>
-
-      <!-- TAB 1: QR CODE DYNAMIC GENERATOR DISPLAY -->
-      <div id="guru-tab-qr" class="max-w-md mx-auto bg-white rounded-3xl shadow-xl border border-orange-100 p-6 text-center space-y-5">
-        <div>
-          <span class="bg-orange-100 text-orange-900 border border-orange-300 text-[11px] font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
-            QR Code Absensi Zhuhur
-          </span>
-          <h3 class="text-xl font-black text-slate-800 mt-2.5">Kelola QR Code Absensi</h3>
-          <p class="text-xs text-slate-500 mt-1">Buat QR code untuk memulai sesi absensi, atau hapus QR code untuk mengakhiri sesi.</p>
-        </div>
-
-        <!-- Inactive State / No QR Generated Box -->
-        <div id="qr-locked-box" class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-4">
-          <div class="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-2xl shadow-inner border border-orange-200">
-            <i class="fa-solid fa-qrcode"></i>
-          </div>
-          <div>
-            <h4 class="font-extrabold text-slate-800 text-sm">QR Code Belum Dibuat</h4>
-            <p class="text-xs text-slate-500 mt-1">Siswa tidak dapat melakukan scan absensi sampai Anda membuat QR Code.</p>
-          </div>
-          <button onclick="createNewQR()" class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-orange-600/30 transition flex items-center gap-2 active:scale-95">
-            <i class="fa-solid fa-plus-circle text-sm"></i>
-            <span>Buat QR Code Absensi</span>
-          </button>
-        </div>
-
-        <!-- Active QR Box Container -->
-        <div id="qr-active-container" class="hidden space-y-5">
-          <!-- QR Box -->
-          <div class="bg-orange-50/60 border-2 border-orange-200 rounded-3xl p-6 flex flex-col items-center justify-center relative min-h-[260px]">
-            <div id="qrcode-box" class="bg-white p-4 rounded-2xl shadow-md border border-orange-100"></div>
-            <p class="mt-3 text-[10px] font-mono text-slate-400 break-all max-w-xs" id="qr-token-text">Loading token...</p>
-          </div>
-
-          <!-- Timer Counter & Progress Bar -->
-          <div class="space-y-2">
-            <div class="flex justify-between items-center text-xs font-extrabold">
-              <span class="text-slate-500"><i class="fa-regular fa-clock mr-1 text-orange-600"></i>Berganti dalam:</span>
-              <span id="qr-timer-text" class="text-red-600 font-black font-mono text-base">60 Detik</span>
-            </div>
-            <div class="w-full bg-orange-100 h-3 rounded-full overflow-hidden p-0.5 border border-orange-200">
-              <div id="qr-timer-bar" class="bg-gradient-to-r from-orange-500 via-red-500 to-red-600 h-full w-full rounded-full transition-all duration-1000 ease-linear"></div>
-            </div>
-          </div>
-
-          <!-- Action Buttons (Refresh & Delete) -->
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="forceRefreshQR()" class="bg-orange-50 hover:bg-orange-100 border border-orange-300 text-orange-900 text-xs font-black py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm">
-              <i class="fa-solid fa-arrows-rotate"></i>
-              <span>Perbarui Kode</span>
-            </button>
-            <button onclick="deleteQR()" class="bg-red-50 hover:bg-red-100 border border-red-300 text-red-700 text-xs font-black py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm">
-              <i class="fa-solid fa-trash-can"></i>
-              <span>Hapus QR Code</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 2: LAPORAN ABSENSI -->
-      <div id="guru-tab-report" class="hidden bg-white rounded-3xl shadow-md border border-orange-100 p-6 space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div>
-            <h3 class="text-lg font-black text-slate-800">Laporan Rekap Absensi Sholat</h3>
-            <p class="text-xs text-slate-500">Filter berdasarkan rentang waktu harian, mingguan, atau bulanan</p>
-          </div>
-          <div class="flex gap-2 self-start sm:self-auto">
-            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-600/20 active:scale-95">
-              <i class="fa-solid fa-file-excel"></i>
-              <span>Download Excel</span>
-            </button>
-            <button onclick="fetchReport()" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-orange-600/20 active:scale-95">
-              <i class="fa-solid fa-rotate"></i>
-              <span>Muat Data</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Filter Controls -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-orange-50/60 p-4 rounded-2xl border border-orange-200">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Periode</label>
-            <select id="report-filter-type" onchange="fetchReport()" class="w-full text-xs font-semibold bg-white border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="harian">Harian (1 Hari)</option>
-              <option value="mingguan">Mingguan (7 Hari Terakhir)</option>
-              <option value="bulanan">Bulanan (Bulan Ini)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Acuan</label>
-            <input type="date" id="report-date-picker" onchange="fetchReport()" class="w-full text-xs font-semibold bg-white border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500">
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Cari Nama / Kelas</label>
-            <input type="text" id="report-search-input" onkeyup="filterReportTable()" placeholder="Ketik nama atau kelas..." class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500">
-          </div>
-        </div>
-
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-3 gap-3">
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-center">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Catatan</p>
-            <p id="stat-total" class="text-xl font-black text-slate-800 mt-0.5">0</p>
-          </div>
-          <div class="bg-orange-50 border border-orange-200 rounded-2xl p-3 text-center">
-            <p class="text-[10px] font-black text-orange-600 uppercase tracking-wider">Sholat (Hadir)</p>
-            <p id="stat-hadir" class="text-xl font-black text-orange-700 mt-0.5">0</p>
-          </div>
-          <div class="bg-red-50 border border-red-200 rounded-2xl p-3 text-center">
-            <p class="text-[10px] font-black text-red-500 uppercase tracking-wider">Tidak Sholat</p>
-            <p id="stat-absent" class="text-xl font-black text-red-600 mt-0.5">0</p>
-          </div>
-        </div>
-
-        <!-- Data Table -->
-        <div class="overflow-x-auto rounded-2xl border border-slate-200">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="bg-gradient-to-r from-orange-100 to-amber-100 text-slate-800 font-extrabold border-b border-orange-200">
-                <th class="p-3">Waktu</th>
-                <th class="p-3">Tanggal</th>
-                <th class="p-3">Nama Siswa</th>
-                <th class="p-3">Kelas</th>
-                <th class="p-3">Status Sholat</th>
-              </tr>
-            </thead>
-            <tbody id="report-tbody" class="divide-y divide-slate-100 bg-white">
-              <tr>
-                <td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada data absensi untuk ditampilkan.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- TAB 3: KELOLA SISWA (CRUD) -->
-      <div id="guru-tab-crud" class="hidden bg-white rounded-3xl shadow-md border border-orange-100 p-6 space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div>
-            <h3 class="text-lg font-black text-slate-800">Manajemen Data Siswa (CRUD)</h3>
-            <p class="text-xs text-slate-500">Tambah, Edit, Hapus, dan Lihat daftar akun siswa</p>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="openModalSiswa('add')" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-2.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1.5 shadow-md shadow-orange-600/20 active:scale-95">
-              <i class="fa-solid fa-plus"></i>
-              <span>Tambah Siswa</span>
-            </button>
-            <button onclick="fetchSiswaList()" class="bg-orange-100 hover:bg-orange-200 text-orange-900 px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1 border border-orange-300">
-              <i class="fa-solid fa-rotate"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Search Bar for Siswa -->
-        <div class="bg-orange-50/60 p-3 rounded-2xl border border-orange-200 flex gap-2">
-          <input type="text" id="siswa-search-input" onkeyup="filterSiswaTable()" placeholder="Cari nama, username, atau kelas..." 
-            class="w-full text-xs bg-white border border-slate-300 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-orange-500">
-        </div>
-
-        <!-- Table Siswa -->
-        <div class="overflow-x-auto rounded-2xl border border-slate-200">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="bg-gradient-to-r from-orange-100 to-amber-100 text-slate-800 font-extrabold border-b border-orange-200">
-                <th class="p-3">No</th>
-                <th class="p-3">Nama Siswa</th>
-                <th class="p-3">Username</th>
-                <th class="p-3">Password</th>
-                <th class="p-3">Kelas</th>
-                <th class="p-3 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="siswa-tbody" class="divide-y divide-slate-100 bg-white">
-              <tr>
-                <td colspan="6" class="p-6 text-center text-slate-400 italic">Memuat data siswa...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- MODAL CONFIG / SETTING BACKEND URL -->
-  <div id="modal-config" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl border border-orange-100 w-full max-w-md p-6 relative animate-fadeIn">
-      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-        <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
-          <i class="fa-solid fa-gear text-orange-600"></i> Pengaturan Web App URL
-        </h3>
-        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 p-1">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <div class="space-y-4">
-        <p class="text-xs text-slate-600">
-          Masukkan **URL Aplikasi Web (Web App URL)** dari hasil Deploy Google Apps Script Anda.
-        </p>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Google Apps Script URL</label>
-          <input type="text" id="modal-gas-url" placeholder="https://script.google.com/macros/s/.../exec" 
-            class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 font-mono">
-        </div>
-
-        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 space-y-1">
-          <p class="font-bold"><i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Penting:</p>
-          <p>Jika URL tidak diisi, sistem secara otomatis berjalan dalam **Mode Demo / Mock Database**.</p>
-        </div>
-
-        <div class="pt-2 flex gap-2 justify-end">
-          <button type="button" onclick="closeConfigModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-600">
-            Batal
-          </button>
-          <button type="button" onclick="saveModalConfigUrl()" class="px-5 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-md shadow-orange-600/20 active:scale-95">
-            Simpan URL
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL FORM CRUD SISWA -->
-  <div id="modal-siswa" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl border border-orange-100 w-full max-w-md p-6 relative animate-fadeIn">
-      <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100">
-        <h3 id="modal-siswa-title" class="text-base font-black text-slate-800">Tambah Data Siswa</h3>
-        <button onclick="closeModalSiswa()" class="text-slate-400 hover:text-slate-600 p-1">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <form onsubmit="handleSaveSiswa(event)" class="space-y-4">
-        <input type="hidden" id="siswa-old-username" value="">
-        <input type="hidden" id="siswa-mode" value="add">
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
-          <input type="text" id="form-siswa-nama" required placeholder="Contoh: Ahmad Rizky" 
-            class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Username Login</label>
-          <input type="text" id="form-siswa-username" required placeholder="Contoh: ahmad123" 
-            class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 font-mono">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Password Login</label>
-          <input type="text" id="form-siswa-password" required placeholder="Contoh: pass123" 
-            class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 font-mono">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Kelas</label>
-          <input type="text" id="form-siswa-kelas" required placeholder="Contoh: 10-A" 
-            class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
-        </div>
-
-        <div class="pt-3 flex gap-2 justify-end">
-          <button type="button" onclick="closeModalSiswa()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-600">
-            Batal
-          </button>
-          <button type="submit" id="btn-save-siswa" class="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-md shadow-orange-600/20 active:scale-95">
-            Simpan Data
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-500">
-      <p>&copy; 2026 SMKF BHAKTI KENCANA - Aplikasi Absensi Sholat Zhuhur</p>
-    </div>
-  </footer>
-
-  <!-- JS LOGIC -->
-  <script>
-    // GLOBAL STATE
-    let currentRole = 'siswa';
-    let currentUser = null;
-    let gasAppUrl = localStorage.getItem('GAS_APP_URL') || '';
-    let qrTimerInterval = null;
-    let qrSecondsLeft = 60;
-    let currentQRToken = '';
-    let isQrActive = false;
-    let rawReportData = [];
-    let rawSiswaData = [];
-    let html5QrcodeScanner = null;
-    let isSubmitting = false;
-
-    // MOCK DATABASE FOR IN-MEMORY TESTING (IF NO GAS_URL IS PROVIDED)
-    const mockDatabase = {
-      siswa: [
-        { nama: "Ahmad Rizky", username: "ahmad123", password: "pass123", kelas: "10-A" },
-        { nama: "Budi Santoso", username: "budi123", password: "pass123", kelas: "10-A" },
-        { nama: "Citra Dewi", username: "citra123", password: "pass123", kelas: "11-B" }
-      ],
-      guru: [
-        { nama: "Ustadz H. Abdullah, S.Pd.I", username: "admin", password: "admin123" }
-      ],
-      absensi: [
-        { timestamp: "2026-10-24 12:05:10", tanggal: "2026-10-24", nama: "Ahmad Rizky", username: "ahmad123", kelas: "10-A", keterangan: "Hadir" },
-        { timestamp: "2026-10-24 12:08:45", tanggal: "2026-10-24", nama: "Citra Dewi", username: "citra123", kelas: "11-B", keterangan: "Tidak Melaksanakan" }
-      ]
-    };
-
-    // ON INIT
-    window.onload = function() {
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('report-date-picker').value = today;
-
-      // Sync URL UI state
-      syncUrlUIState();
-    };
-
-    function syncUrlUIState() {
-      const quickInput = document.getElementById('quick-gas-url');
-      const modalInput = document.getElementById('modal-gas-url');
-      const badge = document.getElementById('url-status-badge');
-
-      if (gasAppUrl) {
-        quickInput.value = gasAppUrl;
-        modalInput.value = gasAppUrl;
-        badge.innerText = "Terhubung";
-        badge.className = "text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 uppercase border border-emerald-300";
-      } else {
-        quickInput.value = "";
-        modalInput.value = "";
-        badge.innerText = "Mode Demo";
-        badge.className = "text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 uppercase border border-amber-300";
-      }
-    }
-
-    function saveQuickUrl() {
-      const val = document.getElementById('quick-gas-url').value.trim();
-      setGasAppUrl(val);
-    }
-
-    function saveModalConfigUrl() {
-      const val = document.getElementById('modal-gas-url').value.trim();
-      setGasAppUrl(val);
-      closeConfigModal();
-    }
-
-    function setGasAppUrl(url) {
-      gasAppUrl = url;
-      localStorage.setItem('GAS_APP_URL', url);
-      syncUrlUIState();
-      
-      if (url) {
-        showAlert("Google Apps Script URL berhasil disimpan!", "success");
-      } else {
-        showAlert("URL dihapus. Aplikasi kembali ke Mode Demo.", "info");
-      }
-    }
-
-    function openConfigModal() {
-      document.getElementById('modal-gas-url').value = gasAppUrl;
-      document.getElementById('modal-config').classList.remove('hidden');
-    }
-
-    function closeConfigModal() {
-      document.getElementById('modal-config').classList.add('hidden');
-    }
-
-    function showAlert(msg, type = 'info') {
-      const box = document.getElementById('alert-box');
-      const icon = document.getElementById('alert-icon');
-      const text = document.getElementById('alert-message');
-
-      box.className = "mb-6 p-4 rounded-2xl flex items-center justify-between shadow-md transition-all duration-300 ";
-      
-      if (type === 'success') {
-        box.classList.add('bg-orange-100', 'text-orange-950', 'border', 'border-orange-300');
-        icon.className = "fa-solid fa-circle-check text-orange-600 text-xl";
-      } else if (type === 'error') {
-        box.classList.add('bg-red-100', 'text-red-950', 'border', 'border-red-300');
-        icon.className = "fa-solid fa-circle-exclamation text-red-600 text-xl";
-      } else {
-        box.classList.add('bg-amber-100', 'text-amber-950', 'border', 'border-amber-300');
-        icon.className = "fa-solid fa-circle-info text-amber-600 text-xl";
-      }
-
-      text.innerText = msg;
-      box.classList.remove('hidden');
-
-      setTimeout(() => {
-        closeAlert();
-      }, 6000);
-    }
-
-    function closeAlert() {
-      document.getElementById('alert-box').classList.add('hidden');
-    }
-
-    // ROLE SWITCHER IN LOGIN
-    function setLoginRole(role) {
-      currentRole = role;
-      const btnSiswa = document.getElementById('btn-role-siswa');
-      const btnGuru = document.getElementById('btn-role-guru');
-
-      if (role === 'siswa') {
-        btnSiswa.className = "py-2.5 text-xs font-extrabold rounded-xl transition-all shadow-md bg-gradient-to-r from-orange-600 to-red-600 text-white";
-        btnGuru.className = "py-2.5 text-xs font-extrabold rounded-xl text-slate-600 hover:text-slate-800 transition-all";
-      } else {
-        btnGuru.className = "py-2.5 text-xs font-extrabold rounded-xl transition-all shadow-md bg-gradient-to-r from-orange-600 to-red-600 text-white";
-        btnSiswa.className = "py-2.5 text-xs font-extrabold rounded-xl text-slate-600 hover:text-slate-800 transition-all";
-      }
-    }
-
-    function fillDemo(user, pass, role) {
-      setLoginRole(role);
-      document.getElementById('login-username').value = user;
-      document.getElementById('login-password').value = pass;
-    }
-
-    // API REQUEST ROUTER WITH RETRY MECHANISM
-    async function apiPost(payload, retries = 2) {
-      if (gasAppUrl) {
-        for (let attempt = 0; attempt <= retries; attempt++) {
-          try {
-            const response = await fetch(gasAppUrl, {
-              method: 'POST',
-              mode: 'cors',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify(payload)
-            });
-            const resData = await response.json();
-            
-            // If server busy lock response, retry after brief delay
-            if (resData.status === 'error' && resData.message && resData.message.includes('Server sedang sibuk') && attempt < retries) {
-              await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-              continue;
-            }
-            return resData;
-          } catch (err) {
-            if (attempt === retries) {
-              console.warn("GAS Connection failed, falling back to mock mode response", err);
-              return await mockBackendHandler(payload);
-            }
-            await new Promise(r => setTimeout(r, 800));
-          }
-        }
-      } else {
-        return await mockBackendHandler(payload);
-      }
-    }
-
-    // MOCK LOCAL BACKEND IMPLEMENTATION
-    async function mockBackendHandler(data) {
-      await new Promise(r => setTimeout(r, 300));
-      const action = data.action;
-
-      if (action === "login_siswa") {
-        const found = mockDatabase.siswa.find(s => s.username.toLowerCase() === data.username.toLowerCase() && s.password === data.password);
-        if (found) return { status: "success", role: "siswa", nama: found.nama, username: found.username, kelas: found.kelas };
-        return { status: "error", message: "Username/Password Siswa salah!" };
-      }
-
-      if (action === "login_guru") {
-        const found = mockDatabase.guru.find(g => g.username.toLowerCase() === data.username.toLowerCase() && g.password === data.password);
-        if (found) return { status: "success", role: "guru", nama: found.nama, username: found.username };
-        return { status: "error", message: "Username/Password Guru/Admin salah!" };
-      }
-
-      if (action === "generate_qr_token") {
-        const timeSlot = Math.floor(Date.now() / 60000);
-        const token = "TOKEN_ZHUHUR_" + timeSlot;
-        mockDatabase.activeToken = token;
-        return { status: "success", token: token, timeSlot: timeSlot };
-      }
-
-      if (action === "delete_qr_token") {
-        mockDatabase.activeToken = null;
-        return { status: "success", message: "QR Code telah dihapus dan dinonaktifkan." };
-      }
-
-      if (action === "submit_absen") {
-        const currentSlot = Math.floor(Date.now() / 60000);
-        const validTokens = ["TOKEN_ZHUHUR_" + currentSlot, "TOKEN_ZHUHUR_" + (currentSlot - 1), "TOKEN_ZHUHUR_" + (currentSlot - 2)];
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 pb-12">
         
-        if (!mockDatabase.activeToken || !data.token || (!validTokens.includes(data.token) && data.token !== mockDatabase.activeToken)) {
-          return { status: "error", message: "QR Code telah kadaluwarsa atau tidak valid!" };
-        }
+        <!-- Action Bar -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-orange-900 border-l-4 border-orange-500 pl-3">Daftar Siswa</h2>
+            <button onclick="openAddModal()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition flex items-center gap-2">
+                + Tambah Siswa
+            </button>
+        </div>
 
-        const userObj = mockDatabase.siswa.find(s => s.username.toLowerCase() === data.username.toLowerCase());
-        const todayStr = new Date().toISOString().split('T')[0];
-        
-        const already = mockDatabase.absensi.find(a => a.username.toLowerCase() === data.username.toLowerCase() && a.tanggal === todayStr);
-        if (already) {
-          return { status: "error", message: "Anda sudah melakukan absensi Sholat Zhuhur hari ini!" };
-        }
+        <!-- Tabel Data -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-amber-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-amber-500 text-white uppercase text-xs tracking-wider">
+                            <th class="py-3 px-4">No</th>
+                            <th class="py-3 px-4">Kode Siswa</th>
+                            <th class="py-3 px-4">Nama Siswa</th>
+                            <th class="py-3 px-4">Kelas</th>
+                            <th class="py-3 px-4">Status</th>
+                            <th class="py-3 px-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="divide-y divide-amber-100 text-sm">
+                        <!-- Data akan dimuat secara dinamis via JavaScript -->
+                        <tr>
+                            <td colspan="6" class="text-center py-6 text-gray-500">Memuat data atau gunakan Mock Mode...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-        const statusText = (data.keterangan === "solat") ? "Hadir" : "Tidak Melaksanakan";
-        const newRecord = {
-          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-          tanggal: todayStr,
-          nama: userObj ? userObj.nama : data.username,
-          username: data.username,
-          kelas: userObj ? userObj.kelas : "10-A",
-          keterangan: statusText
+    <!-- Modal Form (Tambah / Edit) -->
+    <div id="student-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-amber-200">
+            <div class="bg-gradient-to-r from-orange-600 to-amber-500 px-6 py-4 text-white flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-lg">Tambah Siswa Baru</h3>
+                <button onclick="closeModal()" class="text-white hover:text-amber-200 font-bold text-xl">&times;</button>
+            </div>
+            <form id="student-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="form-id-siswa">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">KODE SISWA</label>
+                    <input type="text" id="form-kode" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">NAMA LENGKAP</label>
+                    <input type="text" id="form-nama" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">KELAS</label>
+                    <input type="text" id="form-kelas" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="Contoh: X Farmasi 1">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">STATUS</label>
+                    <select id="form-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="AKTIF">AKTIF</option>
+                        <option value="NONAKTIF">NONAKTIF</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-lg font-medium shadow transition">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Logika & Mock Data Fallback -->
+    <script>
+        // Data Dummy / Mock Data sesuai contoh JSON dari Anda jika belum konek GAS
+        let mockStudents = [
+            { id_siswa: "SISWA-001", kode_siswa: "BK001", nama: "Andi Saputra", kelas: "X Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-002", kode_siswa: "BK002", nama: "Budi Santoso", kelas: "X Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-003", kode_siswa: "BK003", nama: "Citra Maharani", kelas: "X Farmasi 2", status: "AKTIF" },
+            { id_siswa: "SISWA-004", kode_siswa: "BK004", nama: "Dinda Permata", kelas: "XI Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-005", kode_siswa: "BK005", nama: "Eka Ramadhan", kelas: "XI Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-006", kode_siswa: "BK006", nama: "Fajar Nugraha", kelas: "XI Farmasi 2", status: "NONAKTIF" },
+            { id_siswa: "SISWA-007", kode_siswa: "BK007", nama: "Gita Anggraini", kelas: "XII Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-008", kode_siswa: "BK008", nama: "Hendra Wijaya", kelas: "XII Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-009", kode_siswa: "BK009", nama: "Intan Puspitasari", kelas: "XII Farmasi 2", status: "AKTIF" },
+            { id_siswa: "SISWA-010", kode_siswa: "BK010", nama: "Joko Pratama", kelas: "X Farmasi 2", status: "AKTIF" },
+            { id_siswa: "35c34bc7-5bdb-4fb4-8fec-0f8aa9a38a38", kode_siswa: "BK011", nama: "Kurnia Putri", kelas: "X Farmasi 1", status: "AKTIF" }
+        ];
+
+        window.onload = function() {
+            var savedUrl = localStorage.getItem('GAS_APP_URL') || '';
+            document.getElementById('config-gas-url').value = savedUrl;
+            loadStudents();
         };
-        mockDatabase.absensi.push(newRecord);
-        return { status: "success", message: "Alhamdulillah, Absensi Sholat Zhuhur berhasil dicatat!" };
-      }
 
-      if (action === "get_report") {
-        return { status: "success", data: mockDatabase.absensi };
-      }
-
-      // CRUD SISWA MOCK
-      if (action === "get_siswa_list") {
-        return { status: "success", data: mockDatabase.siswa };
-      }
-
-      if (action === "add_siswa") {
-        const exists = mockDatabase.siswa.find(s => s.username.toLowerCase() === data.username.toLowerCase());
-        if (exists) return { status: "error", message: "Username siswa sudah digunakan!" };
-        mockDatabase.siswa.push({ nama: data.nama, username: data.username, password: data.password, kelas: data.kelas });
-        return { status: "success", message: "Data siswa berhasil ditambahkan!" };
-      }
-
-      if (action === "update_siswa") {
-        const idx = mockDatabase.siswa.findIndex(s => s.username.toLowerCase() === data.oldUsername.toLowerCase());
-        if (idx !== -1) {
-          mockDatabase.siswa[idx] = { nama: data.nama, username: data.username, password: data.password, kelas: data.kelas };
-          return { status: "success", message: "Data siswa berhasil diperbarui!" };
+        function saveConfigUrl() {
+            var inputElement = document.getElementById('config-gas-url');
+            if (!inputElement) return;
+            var url = inputElement.value.trim();
+            if (url) { 
+                localStorage.setItem('GAS_APP_URL', url); 
+                alert("URL Berhasil Disimpan!"); 
+            } else { 
+                localStorage.removeItem('GAS_APP_URL'); 
+                alert("URL Dikosongkan (Menggunakan Mock Mode)"); 
+            }
+            loadStudents();
         }
-        return { status: "error", message: "Siswa tidak ditemukan!" };
-      }
 
-      if (action === "delete_siswa") {
-        mockDatabase.siswa = mockDatabase.siswa.filter(s => s.username.toLowerCase() !== data.username.toLowerCase());
-        return { status: "success", message: "Data siswa berhasil dihapus!" };
-      }
+        function loadStudents() {
+            var url = localStorage.getItem('GAS_APP_URL');
+            var tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-500">Memuat data...</td></tr>`;
 
-      return { status: "error", message: "Aksi tidak dikenali" };
-    }
+            if (!url) {
+                // Render dari Mock Data jika URL belum di-set
+                renderTable(mockStudents);
+                return;
+            }
 
-    // HANDLE LOGIN
-    async function handleLogin(e) {
-      e.preventDefault();
-      const username = document.getElementById('login-username').value.trim();
-      const password = document.getElementById('login-password').value.trim();
-
-      const btnSubmit = document.getElementById('btn-submit-login');
-      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
-      btnSubmit.disabled = true;
-
-      const action = currentRole === 'siswa' ? 'login_siswa' : 'login_guru';
-      const res = await apiPost({ action, username, password });
-
-      btnSubmit.innerHTML = `<span>Masuk Sistem</span><i class="fa-solid fa-arrow-right text-xs"></i>`;
-      btnSubmit.disabled = false;
-
-      if (res.status === 'success') {
-        currentUser = res;
-        document.getElementById('section-login').classList.add('hidden');
-        
-        document.getElementById('nav-user-info').classList.remove('hidden');
-        document.getElementById('user-display-name').innerText = res.nama;
-        document.getElementById('user-display-role').innerText = res.role;
-
-        if (res.role === 'siswa') {
-          showSiswaDashboard();
-        } else {
-          showGuruDashboard();
+            // Jika URL ada, ambil data dari Google Apps Script
+            fetch(url)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.success && res.data) {
+                        renderTable(res.data);
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-red-500">Gagal memuat data dari server.</td></tr>`;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-amber-600">Gagal terhubung ke GAS. Menampilkan Mock Data...</td></tr>`;
+                    renderTable(mockStudents);
+                });
         }
-        showAlert(`Selamat datang, ${res.nama}!`, 'success');
-      } else {
-        showAlert(res.message, 'error');
-      }
-    }
 
-    function showSiswaDashboard() {
-      document.getElementById('section-siswa').classList.remove('hidden');
-      document.getElementById('siswa-nama').innerText = currentUser.nama;
-      document.getElementById('siswa-kelas').innerText = currentUser.kelas || '-';
-      document.getElementById('siswa-username-display').innerText = currentUser.username;
-      document.getElementById('siswa-avatar').innerText = currentUser.nama.charAt(0).toUpperCase();
-    }
+        function renderTable(dataList) {
+            var tbody = document.getElementById('student-table-body');
+            if (dataList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-500">Tidak ada data siswa.</td></tr>`;
+                return;
+            }
 
-    function showGuruDashboard() {
-      document.getElementById('section-guru').classList.remove('hidden');
-      switchGuruTab('qr');
-    }
+            var html = '';
+            dataList.forEach((siswa, index) => {
+                var statusBadge = siswa.status === 'AKTIF' 
+                    ? `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-semibold">AKTIF</span>`
+                    : `<span class="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full text-xs font-semibold">NONAKTIF</span>`;
 
-    function switchGuruTab(tab) {
-      const btnQr = document.getElementById('tab-btn-qr');
-      const btnReport = document.getElementById('tab-btn-report');
-      const btnCrud = document.getElementById('tab-btn-crud');
-      const viewQr = document.getElementById('guru-tab-qr');
-      const viewReport = document.getElementById('guru-tab-report');
-      const viewCrud = document.getElementById('guru-tab-crud');
-
-      const activeClass = "flex-1 py-2.5 px-3 rounded-xl font-extrabold text-xs transition flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-md";
-      const inactiveClass = "flex-1 py-2.5 px-3 rounded-xl font-extrabold text-xs transition flex items-center justify-center gap-2 text-slate-600 hover:text-slate-800";
-
-      btnQr.className = tab === 'qr' ? activeClass : inactiveClass;
-      btnReport.className = tab === 'report' ? activeClass : inactiveClass;
-      btnCrud.className = tab === 'crud' ? activeClass : inactiveClass;
-
-      viewQr.classList.toggle('hidden', tab !== 'qr');
-      viewReport.classList.toggle('hidden', tab !== 'report');
-      viewCrud.classList.toggle('hidden', tab !== 'crud');
-
-      if (tab === 'qr') {
-        startQRGeneratorLoop();
-      } else {
-        stopQRGeneratorLoop();
-      }
-
-      if (tab === 'report') {
-        fetchReport();
-      } else if (tab === 'crud') {
-        fetchSiswaList();
-      }
-    }
-
-    // GURU: QR CODE MANUAL GENERATE & DELETE LOGIC
-    async function createNewQR() {
-      isQrActive = true;
-      document.getElementById('qr-locked-box').classList.add('hidden');
-      document.getElementById('qr-active-container').classList.remove('hidden');
-      await refreshQR();
-      startQRTimer();
-      showAlert("QR Code berhasil dibuat dan aktif!", "success");
-    }
-
-    async function deleteQR() {
-      stopQRGeneratorLoop();
-      isQrActive = false;
-      document.getElementById('qr-active-container').classList.add('hidden');
-      document.getElementById('qr-locked-box').classList.remove('hidden');
-      
-      const res = await apiPost({ action: "delete_qr_token" });
-      currentQRToken = '';
-      showAlert(res.message || "QR Code berhasil dihapus!", "info");
-    }
-
-    function startQRGeneratorLoop() {
-      if (isQrActive) {
-        startQRTimer();
-      }
-    }
-
-    function startQRTimer() {
-      stopQRGeneratorLoop();
-      qrSecondsLeft = 60;
-      document.getElementById('qr-timer-bar').style.width = '100%';
-
-      qrTimerInterval = setInterval(() => {
-        if (!isQrActive) return;
-
-        qrSecondsLeft--;
-        document.getElementById('qr-timer-text').innerText = `${qrSecondsLeft} Detik`;
-        document.getElementById('qr-timer-bar').style.width = `${(qrSecondsLeft / 60) * 100}%`;
-
-        if (qrSecondsLeft <= 0) {
-          qrSecondsLeft = 60;
-          refreshQR();
+                html += `
+                    <tr class="hover:bg-amber-50/50 transition">
+                        <td class="py-3 px-4">${index + 1}</td>
+                        <td class="py-3 px-4 font-mono font-medium text-orange-800">${siswa.kode_siswa}</td>
+                        <td class="py-3 px-4 font-semibold text-gray-900">${siswa.nama}</td>
+                        <td class="py-3 px-4">${siswa.kelas}</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center space-x-2">
+                            <button onclick='openEditModal(${JSON.stringify(siswa)})' class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-semibold transition">Edit</button>
+                            <button onclick="deleteStudent('${siswa.id_siswa}')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 px-3 py-1 rounded text-xs font-semibold transition">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
         }
-      }, 1000);
-    }
 
-    function stopQRGeneratorLoop() {
-      if (qrTimerInterval) clearInterval(qrTimerInterval);
-    }
-
-    async function forceRefreshQR() {
-      if (!isQrActive) return;
-      qrSecondsLeft = 60;
-      document.getElementById('qr-timer-bar').style.width = '100%';
-      await refreshQR();
-      showAlert("Kode QR berhasil diperbarui", "success");
-    }
-
-    async function refreshQR() {
-      const box = document.getElementById('qrcode-box');
-      box.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-2xl text-orange-600 my-8"></i>`;
-
-      const res = await apiPost({ action: "generate_qr_token" });
-      box.innerHTML = "";
-
-      if (res.status === 'success') {
-        currentQRToken = res.token;
-        document.getElementById('qr-token-text').innerText = `Token: ${res.token}`;
-        
-        new QRCode(box, {
-          text: res.token,
-          width: 180,
-          height: 180,
-          colorDark : "#c2410c",
-          colorLight : "#ffffff",
-          correctLevel : QRCode.CorrectLevel.H
-        });
-      } else {
-        box.innerHTML = `<span class="text-xs text-red-500 font-semibold">Gagal memuat QR Code</span>`;
-      }
-    }
-
-    // SISWA SCANNER & SUBMISSION
-    function startScanner() {
-      document.getElementById('reader-container').classList.remove('hidden');
-      document.getElementById('btn-start-scan').classList.add('hidden');
-      document.getElementById('btn-stop-scan').classList.remove('hidden');
-
-      html5QrcodeScanner = new Html5Qrcode("reader");
-      html5QrcodeScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 220, height: 220 } },
-        onScanSuccess,
-        onScanFailure
-      ).catch(err => {
-        showAlert("Gagal mengakses kamera: " + err, "error");
-        stopScanner();
-      });
-    }
-
-    function stopScanner() {
-      if (html5QrcodeScanner) {
-        html5QrcodeScanner.stop().then(() => {
-          html5QrcodeScanner.clear();
-          document.getElementById('reader-container').classList.add('hidden');
-          document.getElementById('btn-start-scan').classList.remove('hidden');
-          document.getElementById('btn-stop-scan').classList.add('hidden');
-        }).catch(err => console.error(err));
-      }
-    }
-
-    function onScanSuccess(decodedText) {
-      if (isSubmitting) return; // Anti debounce for high concurrency
-      isSubmitting = true;
-      stopScanner();
-      processAbsenSubmit(decodedText);
-    }
-
-    function onScanFailure(error) {}
-
-    async function processAbsenSubmit(token) {
-      const ketRadios = document.getElementsByName('keterangan_sholat');
-      let keterangan = 'solat';
-      for (const radio of ketRadios) {
-        if (radio.checked) {
-          keterangan = radio.value;
-          break;
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = "Tambah Siswa Baru";
+            document.getElementById('student-form').reset();
+            document.getElementById('form-id-siswa').value = "";
+            document.getElementById('student-modal').classList.remove('hidden');
+            document.getElementById('student-modal').classList.add('flex');
         }
-      }
 
-      showAlert("Mengirim data absensi ke server...", "info");
-
-      const res = await apiPost({
-        action: "submit_absen",
-        username: currentUser.username,
-        keterangan: keterangan,
-        token: token
-      });
-
-      isSubmitting = false;
-
-      if (res.status === 'success') {
-        showAlert(res.message, 'success');
-      } else {
-        showAlert(res.message, 'error');
-      }
-    }
-
-    // GURU LAPORAN
-    async function fetchReport() {
-      const tbody = document.getElementById('report-tbody');
-      tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2 text-orange-600"></i>Memuat laporan...</td></tr>`;
-
-      const filterType = document.getElementById('report-filter-type').value;
-      const dateValue = document.getElementById('report-date-picker').value;
-
-      const res = await apiPost({
-        action: "get_report",
-        filterType: filterType,
-        dateValue: dateValue
-      });
-
-      if (res.status === 'success') {
-        rawReportData = res.data || [];
-        renderReportTable(rawReportData);
-      } else {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-500 font-semibold">Gagal memuat laporan: ${res.message}</td></tr>`;
-      }
-    }
-
-    function renderReportTable(data) {
-      const tbody = document.getElementById('report-tbody');
-      tbody.innerHTML = '';
-
-      let countHadir = 0;
-      let countAbsent = 0;
-
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Tidak ada catatan absensi dalam rentang waktu terpilih.</td></tr>`;
-        document.getElementById('stat-total').innerText = '0';
-        document.getElementById('stat-hadir').innerText = '0';
-        document.getElementById('stat-absent').innerText = '0';
-        return;
-      }
-
-      data.forEach(item => {
-        const isHadir = item.keterangan === "Hadir";
-        if (isHadir) countHadir++;
-        else countAbsent++;
-
-        const badgeStyle = isHadir
-          ? "bg-orange-100 text-orange-900 border-orange-300"
-          : "bg-red-100 text-red-900 border-red-300";
-
-        const iconStyle = isHadir ? "fa-circle-check text-orange-600" : "fa-circle-xmark text-red-600";
-
-        tbody.innerHTML += `
-          <tr class="hover:bg-orange-50/50 transition">
-            <td class="p-3 font-mono text-slate-500">${item.timestamp}</td>
-            <td class="p-3 text-slate-700">${item.tanggal || '-'}</td>
-            <td class="p-3 font-bold text-slate-800">${item.nama}</td>
-            <td class="p-3 text-slate-600 font-mono">${item.kelas || '-'}</td>
-            <td class="p-3">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold border ${badgeStyle}">
-                <i class="fa-solid ${iconStyle}"></i>
-                <span>${item.keterangan}</span>
-              </span>
-            </td>
-          </tr>
-        `;
-      });
-
-      document.getElementById('stat-total').innerText = data.length;
-      document.getElementById('stat-hadir').innerText = countHadir;
-      document.getElementById('stat-absent').innerText = countAbsent;
-    }
-
-    function filterReportTable() {
-      const query = document.getElementById('report-search-input').value.toLowerCase();
-      const filtered = rawReportData.filter(item => 
-        (item.nama && item.nama.toLowerCase().includes(query)) ||
-        (item.kelas && item.kelas.toLowerCase().includes(query)) ||
-        (item.username && item.username.toLowerCase().includes(query))
-      );
-      renderReportTable(filtered);
-    }
-
-    // EXPORT LAPORAN TO EXCEL
-    function exportToExcel() {
-      if (!rawReportData || rawReportData.length === 0) {
-        showAlert("Tidak ada data laporan untuk diunduh!", "error");
-        return;
-      }
-
-      const query = document.getElementById('report-search-input').value.toLowerCase();
-      const dataToExport = query ? rawReportData.filter(item => 
-        (item.nama && item.nama.toLowerCase().includes(query)) ||
-        (item.kelas && item.kelas.toLowerCase().includes(query)) ||
-        (item.username && item.username.toLowerCase().includes(query))
-      ) : rawReportData;
-
-      if (dataToExport.length === 0) {
-        showAlert("Data hasil pencarian kosong!", "error");
-        return;
-      }
-
-      const excelRows = dataToExport.map((item, index) => ({
-        "No": index + 1,
-        "Waktu Scan": item.timestamp || "-",
-        "Tanggal": item.tanggal || "-",
-        "Nama Siswa": item.nama || "-",
-        "Username": item.username || "-",
-        "Kelas": item.kelas || "-",
-        "Status Sholat": item.keterangan || "-"
-      }));
-
-      const worksheet = XLSX.utils.json_to_sheet(excelRows);
-      
-      worksheet['!cols'] = [
-        { wch: 6 },
-        { wch: 20 },
-        { wch: 14 },
-        { wch: 25 },
-        { wch: 15 },
-        { wch: 10 },
-        { wch: 20 }
-      ];
-
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Absensi Zhuhur");
-
-      const filterType = document.getElementById('report-filter-type').value;
-      const dateVal = document.getElementById('report-date-picker').value || 'rekap';
-      const fileName = `Laporan_Absensi_Zhuhur_${filterType}_${dateVal}.xlsx`;
-
-      XLSX.writeFile(workbook, fileName);
-      showAlert("Laporan Excel berhasil diunduh!", "success");
-    }
-
-    // CRUD SISWA FUNCTIONS
-    async function fetchSiswaList() {
-      const tbody = document.getElementById('siswa-tbody');
-      tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2 text-orange-600"></i>Memuat daftar siswa...</td></tr>`;
-
-      const res = await apiPost({ action: "get_siswa_list" });
-      if (res.status === 'success') {
-        rawSiswaData = res.data || [];
-        renderSiswaTable(rawSiswaData);
-      } else {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-500 font-semibold">Gagal memuat data siswa: ${res.message}</td></tr>`;
-      }
-    }
-
-    function renderSiswaTable(data) {
-      const tbody = document.getElementById('siswa-tbody');
-      tbody.innerHTML = '';
-
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Belum ada data siswa. Klik "+ Tambah Siswa" untuk menambahkan.</td></tr>`;
-        return;
-      }
-
-      data.forEach((item, index) => {
-        tbody.innerHTML += `
-          <tr class="hover:bg-orange-50/50 transition">
-            <td class="p-3 font-mono text-slate-400">${index + 1}</td>
-            <td class="p-3 font-extrabold text-slate-800">${item.nama}</td>
-            <td class="p-3 font-mono text-orange-700 font-bold">${item.username}</td>
-            <td class="p-3 font-mono text-slate-500">${item.password}</td>
-            <td class="p-3 text-slate-700 font-bold">${item.kelas}</td>
-            <td class="p-3 text-center">
-              <div class="inline-flex gap-1.5">
-                <button onclick="editSiswa('${item.username}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 p-2 rounded-xl text-xs font-bold transition">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button onclick="deleteSiswa('${item.username}', '${item.nama}')" class="bg-red-100 hover:bg-red-200 text-red-900 p-2 rounded-xl text-xs font-bold transition">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function filterSiswaTable() {
-      const query = document.getElementById('siswa-search-input').value.toLowerCase();
-      const filtered = rawSiswaData.filter(item => 
-        (item.nama && item.nama.toLowerCase().includes(query)) ||
-        (item.username && item.username.toLowerCase().includes(query)) ||
-        (item.kelas && item.kelas.toLowerCase().includes(query))
-      );
-      renderSiswaTable(filtered);
-    }
-
-    function openModalSiswa(mode, username = '') {
-      document.getElementById('siswa-mode').value = mode;
-      document.getElementById('modal-siswa-title').innerText = mode === 'add' ? 'Tambah Data Siswa Baru' : 'Edit Data Siswa';
-      
-      if (mode === 'add') {
-        document.getElementById('siswa-old-username').value = '';
-        document.getElementById('form-siswa-nama').value = '';
-        document.getElementById('form-siswa-username').value = '';
-        document.getElementById('form-siswa-password').value = '';
-        document.getElementById('form-siswa-kelas').value = '';
-      } else {
-        const found = rawSiswaData.find(s => s.username.toLowerCase() === username.toLowerCase());
-        if (found) {
-          document.getElementById('siswa-old-username').value = found.username;
-          document.getElementById('form-siswa-nama').value = found.nama;
-          document.getElementById('form-siswa-username').value = found.username;
-          document.getElementById('form-siswa-password').value = found.password;
-          document.getElementById('form-siswa-kelas').value = found.kelas;
+        function openEditModal(siswa) {
+            document.getElementById('modal-title').innerText = "Edit Data Siswa";
+            document.getElementById('form-id-siswa').value = siswa.id_siswa;
+            document.getElementById('form-kode').value = siswa.kode_siswa;
+            document.getElementById('form-nama').value = siswa.nama;
+            document.getElementById('form-kelas').value = siswa.kelas;
+            document.getElementById('form-status').value = siswa.status;
+            
+            document.getElementById('student-modal').classList.remove('hidden');
+            document.getElementById('student-modal').classList.add('flex');
         }
-      }
 
-      document.getElementById('modal-siswa').classList.remove('hidden');
-    }
+        function closeModal() {
+            document.getElementById('student-modal').classList.remove('flex');
+            document.getElementById('student-modal').classList.add('hidden');
+        }
 
-    function closeModalSiswa() {
-      document.getElementById('modal-siswa').classList.add('hidden');
-    }
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            var id = document.getElementById('form-id-siswa').value;
+            var kode = document.getElementById('form-kode').value;
+            var nama = document.getElementById('form-nama').value;
+            var kelas = document.getElementById('form-kelas').value;
+            var status = document.getElementById('form-status').value;
 
-    function editSiswa(username) {
-      openModalSiswa('edit', username);
-    }
+            if (id) {
+                // Update Mock Data (atau kirim ke GAS jika sudah terhubung)
+                let idx = mockStudents.findIndex(s => s.id_siswa === id);
+                if (idx !== -1) {
+                    mockStudents[idx] = { id_siswa: id, kode_siswa: kode, nama: nama, kelas: kelas, status: status };
+                }
+                alert("Data berhasil diperbarui (Mock Mode)!");
+            } else {
+                // Tambah Data Baru
+                let newId = "SISWA-" + String(mockStudents.length + 1).padStart(3, '0');
+                mockStudents.push({ id_siswa: newId, kode_siswa: kode, nama: nama, kelas: kelas, status: status });
+                alert("Data berhasil ditambahkan (Mock Mode)!");
+            }
 
-    async function handleSaveSiswa(e) {
-      e.preventDefault();
-      const mode = document.getElementById('siswa-mode').value;
-      const oldUsername = document.getElementById('siswa-old-username').value;
-      const nama = document.getElementById('form-siswa-nama').value.trim();
-      const username = document.getElementById('form-siswa-username').value.trim();
-      const password = document.getElementById('form-siswa-password').value.trim();
-      const kelas = document.getElementById('form-siswa-kelas').value.trim();
+            closeModal();
+            loadStudents();
+        }
 
-      const btnSave = document.getElementById('btn-save-siswa');
-      btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
-      btnSave.disabled = true;
-
-      const action = mode === 'add' ? 'add_siswa' : 'update_siswa';
-      const res = await apiPost({ action, oldUsername, nama, username, password, kelas });
-
-      btnSave.innerHTML = `Simpan Data`;
-      btnSave.disabled = false;
-
-      if (res.status === 'success') {
-        showAlert(res.message, 'success');
-        closeModalSiswa();
-        fetchSiswaList();
-      } else {
-        showAlert(res.message, 'error');
-      }
-    }
-
-    async function deleteSiswa(username, nama) {
-      showAlert("Mengeksekusi penghapusan...", "info");
-      const res = await apiPost({ action: "delete_siswa", username });
-      if (res.status === 'success') {
-        showAlert(res.message, 'success');
-        fetchSiswaList();
-      } else {
-        showAlert(res.message, 'error');
-      }
-    }
-
-    function logout() {
-      stopQRGeneratorLoop();
-      stopScanner();
-      currentUser = null;
-      isSubmitting = false;
-      document.getElementById('nav-user-info').classList.add('hidden');
-      document.getElementById('section-siswa').classList.add('hidden');
-      document.getElementById('section-guru').classList.add('hidden');
-      document.getElementById('section-login').classList.remove('hidden');
-      document.getElementById('login-username').value = '';
-      document.getElementById('login-password').value = '';
-      showAlert('Anda telah keluar dari akun.', 'info');
-    }
-  </script>
+        function deleteStudent(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus data siswa ini?")) {
+                mockStudents = mockStudents.filter(s => s.id_siswa !== id);
+                alert("Data berhasil dihapus (Mock Mode)!");
+                loadStudents();
+            }
+        }
+    </script>
 </body>
 </html>
