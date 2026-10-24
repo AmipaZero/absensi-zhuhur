@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Data Siswa - SMK</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen font-sans text-gray-800">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-orange-600 to-amber-500 shadow-lg text-white py-4 px-6 mb-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold">Manajemen Data Siswa</h1>
+                <p class="text-amber-100 text-sm">Sistem CRUD Terintegrasi Google Apps Script</p>
+            </div>
+            <!-- Konfigurasi URL API GAS -->
+            <div class="flex items-center gap-2 bg-white/10 p-2 rounded-lg backdrop-blur-sm w-full md:w-auto">
+                <input type="text" id="config-gas-url" placeholder="Paste URL Web App GAS di sini..." 
+                    class="px-3 py-1.5 rounded text-sm text-gray-800 bg-amber-50 focus:outline-none w-full md:w-80">
+                <button onclick="saveConfigUrl()" class="bg-amber-400 hover:bg-amber-300 text-orange-950 px-4 py-1.5 rounded text-sm font-semibold transition">
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 pb-12">
+        
+        <!-- Action Bar -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-orange-900 border-l-4 border-orange-500 pl-3">Daftar Siswa</h2>
+            <button onclick="openAddModal()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition flex items-center gap-2">
+                + Tambah Siswa
+            </button>
+        </div>
+
+        <!-- Tabel Data -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-amber-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-amber-500 text-white uppercase text-xs tracking-wider">
+                            <th class="py-3 px-4">No</th>
+                            <th class="py-3 px-4">Kode Siswa</th>
+                            <th class="py-3 px-4">Nama Siswa</th>
+                            <th class="py-3 px-4">Kelas</th>
+                            <th class="py-3 px-4">Status</th>
+                            <th class="py-3 px-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="divide-y divide-amber-100 text-sm">
+                        <!-- Data akan dimuat secara dinamis via JavaScript -->
+                        <tr>
+                            <td colspan="6" class="text-center py-6 text-gray-500">Memuat data atau gunakan Mock Mode...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form (Tambah / Edit) -->
+    <div id="student-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-amber-200">
+            <div class="bg-gradient-to-r from-orange-600 to-amber-500 px-6 py-4 text-white flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-lg">Tambah Siswa Baru</h3>
+                <button onclick="closeModal()" class="text-white hover:text-amber-200 font-bold text-xl">&times;</button>
+            </div>
+            <form id="student-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="form-id-siswa">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">KODE SISWA</label>
+                    <input type="text" id="form-kode" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">NAMA LENGKAP</label>
+                    <input type="text" id="form-nama" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">KELAS</label>
+                    <input type="text" id="form-kelas" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="Contoh: X Farmasi 1">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">STATUS</label>
+                    <select id="form-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="AKTIF">AKTIF</option>
+                        <option value="NONAKTIF">NONAKTIF</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-lg font-medium shadow transition">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Logika & Mock Data Fallback -->
+    <script>
+        // Data Dummy / Mock Data sesuai contoh JSON dari Anda jika belum konek GAS
+        let mockStudents = [
+            { id_siswa: "SISWA-001", kode_siswa: "BK001", nama: "Andi Saputra", kelas: "X Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-002", kode_siswa: "BK002", nama: "Budi Santoso", kelas: "X Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-003", kode_siswa: "BK003", nama: "Citra Maharani", kelas: "X Farmasi 2", status: "AKTIF" },
+            { id_siswa: "SISWA-004", kode_siswa: "BK004", nama: "Dinda Permata", kelas: "XI Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-005", kode_siswa: "BK005", nama: "Eka Ramadhan", kelas: "XI Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-006", kode_siswa: "BK006", nama: "Fajar Nugraha", kelas: "XI Farmasi 2", status: "NONAKTIF" },
+            { id_siswa: "SISWA-007", kode_siswa: "BK007", nama: "Gita Anggraini", kelas: "XII Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-008", kode_siswa: "BK008", nama: "Hendra Wijaya", kelas: "XII Farmasi 1", status: "AKTIF" },
+            { id_siswa: "SISWA-009", kode_siswa: "BK009", nama: "Intan Puspitasari", kelas: "XII Farmasi 2", status: "AKTIF" },
+            { id_siswa: "SISWA-010", kode_siswa: "BK010", nama: "Joko Pratama", kelas: "X Farmasi 2", status: "AKTIF" },
+            { id_siswa: "35c34bc7-5bdb-4fb4-8fec-0f8aa9a38a38", kode_siswa: "BK011", nama: "Kurnia Putri", kelas: "X Farmasi 1", status: "AKTIF" }
+        ];
+
+        window.onload = function() {
+            var savedUrl = localStorage.getItem('GAS_APP_URL') || '';
+            document.getElementById('config-gas-url').value = savedUrl;
+            loadStudents();
+        };
+
+        function saveConfigUrl() {
+            var inputElement = document.getElementById('config-gas-url');
+            if (!inputElement) return;
+            var url = inputElement.value.trim();
+            if (url) { 
+                localStorage.setItem('GAS_APP_URL', url); 
+                alert("URL Berhasil Disimpan!"); 
+            } else { 
+                localStorage.removeItem('GAS_APP_URL'); 
+                alert("URL Dikosongkan (Menggunakan Mock Mode)"); 
+            }
+            loadStudents();
+        }
+
+        function loadStudents() {
+            var url = localStorage.getItem('GAS_APP_URL');
+            var tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-500">Memuat data...</td></tr>`;
+
+            if (!url) {
+                // Render dari Mock Data jika URL belum di-set
+                renderTable(mockStudents);
+                return;
+            }
+
+            // Jika URL ada, ambil data dari Google Apps Script
+            fetch(url)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.success && res.data) {
+                        renderTable(res.data);
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-red-500">Gagal memuat data dari server.</td></tr>`;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-amber-600">Gagal terhubung ke GAS. Menampilkan Mock Data...</td></tr>`;
+                    renderTable(mockStudents);
+                });
+        }
+
+        function renderTable(dataList) {
+            var tbody = document.getElementById('student-table-body');
+            if (dataList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-500">Tidak ada data siswa.</td></tr>`;
+                return;
+            }
+
+            var html = '';
+            dataList.forEach((siswa, index) => {
+                var statusBadge = siswa.status === 'AKTIF' 
+                    ? `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-semibold">AKTIF</span>`
+                    : `<span class="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full text-xs font-semibold">NONAKTIF</span>`;
+
+                html += `
+                    <tr class="hover:bg-amber-50/50 transition">
+                        <td class="py-3 px-4">${index + 1}</td>
+                        <td class="py-3 px-4 font-mono font-medium text-orange-800">${siswa.kode_siswa}</td>
+                        <td class="py-3 px-4 font-semibold text-gray-900">${siswa.nama}</td>
+                        <td class="py-3 px-4">${siswa.kelas}</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center space-x-2">
+                            <button onclick='openEditModal(${JSON.stringify(siswa)})' class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-semibold transition">Edit</button>
+                            <button onclick="deleteStudent('${siswa.id_siswa}')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 px-3 py-1 rounded text-xs font-semibold transition">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = "Tambah Siswa Baru";
+            document.getElementById('student-form').reset();
+            document.getElementById('form-id-siswa').value = "";
+            document.getElementById('student-modal').classList.remove('hidden');
+            document.getElementById('student-modal').classList.add('flex');
+        }
+
+        function openEditModal(siswa) {
+            document.getElementById('modal-title').innerText = "Edit Data Siswa";
+            document.getElementById('form-id-siswa').value = siswa.id_siswa;
+            document.getElementById('form-kode').value = siswa.kode_siswa;
+            document.getElementById('form-nama').value = siswa.nama;
+            document.getElementById('form-kelas').value = siswa.kelas;
+            document.getElementById('form-status').value = siswa.status;
+            
+            document.getElementById('student-modal').classList.remove('hidden');
+            document.getElementById('student-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('student-modal').classList.remove('flex');
+            document.getElementById('student-modal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            var id = document.getElementById('form-id-siswa').value;
+            var kode = document.getElementById('form-kode').value;
+            var nama = document.getElementById('form-nama').value;
+            var kelas = document.getElementById('form-kelas').value;
+            var status = document.getElementById('form-status').value;
+
+            if (id) {
+                // Update Mock Data (atau kirim ke GAS jika sudah terhubung)
+                let idx = mockStudents.findIndex(s => s.id_siswa === id);
+                if (idx !== -1) {
+                    mockStudents[idx] = { id_siswa: id, kode_siswa: kode, nama: nama, kelas: kelas, status: status };
+                }
+                alert("Data berhasil diperbarui (Mock Mode)!");
+            } else {
+                // Tambah Data Baru
+                let newId = "SISWA-" + String(mockStudents.length + 1).padStart(3, '0');
+                mockStudents.push({ id_siswa: newId, kode_siswa: kode, nama: nama, kelas: kelas, status: status });
+                alert("Data berhasil ditambahkan (Mock Mode)!");
+            }
+
+            closeModal();
+            loadStudents();
+        }
+
+        function deleteStudent(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus data siswa ini?")) {
+                mockStudents = mockStudents.filter(s => s.id_siswa !== id);
+                alert("Data berhasil dihapus (Mock Mode)!");
+                loadStudents();
+            }
+        }
+    </script>
+</body>
+</html>  
