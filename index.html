@@ -18,44 +18,64 @@
 <body class="bg-gray-50 min-h-screen font-sans text-gray-800">
 
   <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxlTf63iwjmIyq5rZq9RmYCMPp4QQBCjsBqC2D9amNyM3bWzYU31wmn8t_04MI8wo0bkg/exec"; 
+    // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+    const GAS_API_URL = "URL_WEB_APP_GAS_ANDA_DISINI"; 
   </script>
 
   <header class="bg-islamic text-white shadow-lg p-4 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <div class="flex items-center space-x-3"><i class="fa-solid fa-mosque text-3xl"></i><div><h1 class="text-lg md:text-xl font-bold leading-tight">SMKF BHAKTI KENCANA</h1><p class="text-xs text-orange-100">Sistem Absensi Sholat Zhuhur</p></div></div>
-      <div id="userInfo" class="hidden flex items-center space-x-4"><span id="welcomeName" class="hidden md:inline font-medium text-sm"></span><button onclick="logout()" class="bg-white text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold shadow"><i class="fa-solid fa-sign-out-alt"></i> Keluar</button></div>
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-mosque text-3xl"></i>
+        <div>
+          <h1 class="text-lg md:text-xl font-bold leading-tight">SMKF BHAKTI KENCANA</h1>
+          <p class="text-xs text-orange-100">Sistem Absensi Sholat Zhuhur</p>
+        </div>
+      </div>
+      <div id="userInfo" class="hidden flex items-center space-x-4">
+        <span id="welcomeName" class="hidden md:inline font-medium text-sm"></span>
+        <button onclick="logout()" class="bg-white text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-red-50 transition"><i class="fa-solid fa-sign-out-alt"></i> Keluar</button>
+      </div>
     </div>
   </header>
 
   <main class="max-w-6xl mx-auto p-4 mt-2">
     <!-- VIEW LOGIN -->
     <div id="view-login" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-6 mt-10 fade-in">
-      <div class="text-center mb-6"><div class="inline-block bg-orange-100 p-4 rounded-full text-orange-600 mb-3"><i class="fa-solid fa-user-lock text-3xl"></i></div><h2 class="text-2xl font-bold">Portal Login</h2></div>
+      <div class="text-center mb-6">
+        <div class="inline-block bg-orange-100 p-4 rounded-full text-orange-600 mb-3"><i class="fa-solid fa-user-lock text-3xl"></i></div>
+        <h2 class="text-2xl font-bold">Portal Login</h2>
+      </div>
       <div class="flex rounded-lg bg-gray-100 p-1 mb-4">
         <button id="btnRoleSiswa" onclick="switchLoginRole('siswa')" class="flex-1 py-2 rounded-md bg-white shadow-sm text-orange-600 font-bold transition">Siswa</button>
         <button id="btnRoleAdmin" onclick="switchLoginRole('admin')" class="flex-1 py-2 rounded-md text-gray-500 font-bold transition">Guru / Admin</button>
       </div>
-      <div id="bannerOperasional" class="hidden mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg fade-in"><div class="flex items-center"><i class="fa-solid fa-clock text-red-500 mr-2 text-lg"></i><div><p class="text-sm font-bold text-red-700">Absensi Ditutup</p><p class="text-xs text-red-600">Jadwal: 10:00 - 17:00 WIB.</p></div></div></div>
+      <div id="bannerOperasional" class="hidden mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg fade-in">
+        <div class="flex items-center"><i class="fa-solid fa-clock text-red-500 mr-2 text-lg"></i><div><p class="text-sm font-bold text-red-700">Absensi Ditutup</p><p class="text-xs text-red-600">Jadwal: 10:00 - 17:00 WIB.</p></div></div>
+      </div>
       <form id="loginForm" onsubmit="handleLogin(event)">
         <input type="hidden" id="loginRole" value="siswa">
         <div class="mb-4 relative"><i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i><input type="text" id="username" class="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required placeholder="Username"></div>
         <div class="mb-6 relative"><i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-400"></i><input type="password" id="password" class="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required placeholder="Password"></div>
-        <button type="submit" id="btnLoginSubmit" class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-700 shadow-md">Masuk Sekarang</button>
+        <button type="submit" id="btnLoginSubmit" class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-700 shadow-md transition">Masuk Sekarang</button>
       </form>
     </div>
 
     <!-- VIEW SISWA -->
     <div id="view-siswa" class="hidden max-w-md mx-auto">
-      <div class="bg-white rounded-2xl shadow-md p-6 mb-4 text-center border-t-4 border-orange-500 fade-in"><h3 id="siswaNama" class="text-xl font-bold">Nama</h3><p id="siswaKelas" class="text-gray-500 text-sm mt-1">Kelas | ID</p></div>
-      
-      <div id="formAbsensi" class="bg-white rounded-2xl shadow-md p-6 fade-in text-center">
-        <h4 class="font-bold mb-4 text-gray-700">Arahkan Kamera ke QR Code!</h4>
-        <button id="btnStartScan" onclick="startScanner()" class="w-full bg-orange-600 text-white font-bold py-4 rounded-xl hover:bg-orange-700 shadow-md"><i class="fa-solid fa-qrcode mr-2 text-xl"></i> Mulai Scan QR</button>
-        <div id="reader-container" class="hidden mt-4"><div class="bg-gray-900 rounded-xl p-2 mb-2"><div id="reader" class="w-full rounded-lg overflow-hidden"></div></div><button onclick="stopScanner()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Batalkan Kamera</button></div>
+      <div class="bg-white rounded-2xl shadow-md p-6 mb-4 text-center border-t-4 border-orange-500 fade-in">
+        <h3 id="siswaNama" class="text-xl font-bold">Nama</h3><p id="siswaKelas" class="text-gray-500 text-sm mt-1">Kelas | ID</p>
       </div>
       
-      <!-- PESAN DINAMIS HASIL ABSEN (SHOLAT/HAID) -->
+      <div id="formAbsensi" class="bg-white rounded-2xl shadow-md p-6 fade-in text-center">
+        <h4 class="font-bold mb-4 text-gray-700">Arahkan Kamera ke QR Code di Depan</h4>
+        <button id="btnStartScan" onclick="startScanner()" class="w-full bg-orange-600 text-white font-bold py-4 rounded-xl hover:bg-orange-700 shadow-md transition"><i class="fa-solid fa-qrcode mr-2 text-xl"></i> Mulai Scan QR</button>
+        <div id="reader-container" class="hidden mt-4">
+          <div class="bg-gray-900 rounded-xl p-2 mb-2"><div id="reader" class="w-full rounded-lg overflow-hidden"></div></div>
+          <button onclick="stopScanner()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-300 transition">Batalkan Kamera</button>
+        </div>
+      </div>
+      
+      <!-- PESAN DINAMIS HASIL ABSEN -->
       <div id="pesanSudahAbsen" class="hidden bg-white rounded-2xl shadow-md p-6 text-center border-t-4 border-green-500 fade-in">
         <div id="iconSuccessBg" class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-green-500 text-4xl"><i id="iconSuccess" class="fa-solid fa-check-double"></i></div>
         <h4 id="titleSuccess" class="font-bold text-xl mb-1">Berhasil</h4><p id="descSuccess" class="text-gray-500 text-sm font-medium">Data absensi Anda telah tercatat.</p>
@@ -64,40 +84,63 @@
 
     <!-- VIEW ADMIN -->
     <div id="view-admin" class="hidden w-full fade-in">
-      <div class="flex space-x-1 border-b-2 border-gray-200 mb-6 bg-white p-1 rounded-t-lg shadow-sm">
-        <button onclick="switchAdminTab('qr')" id="tab-qr" class="admin-tab flex-1 py-3 text-center text-orange-600 border-b-2 border-orange-600 font-bold"><i class="fa-solid fa-qrcode"></i> Generator QR</button>
-        <button onclick="switchAdminTab('rekap')" id="tab-rekap" class="admin-tab flex-1 py-3 text-center text-gray-500 font-medium"><i class="fa-solid fa-file-lines"></i> Rekap Absen</button>
+      <!-- 3 MENU TAB UTAMA -->
+      <div class="flex flex-col md:flex-row border-b-2 border-gray-200 mb-6 bg-white p-1 rounded-t-lg shadow-sm">
+        <button onclick="switchAdminTab('qr-sholat')" id="tab-qr-sholat" class="admin-tab flex-1 py-3 text-center text-green-600 border-b-2 border-green-600 font-bold transition"><i class="fa-solid fa-person-praying mr-1"></i> QR Sholat</button>
+        <button onclick="switchAdminTab('qr-haid')" id="tab-qr-haid" class="admin-tab flex-1 py-3 text-center text-gray-500 font-medium transition"><i class="fa-solid fa-hand-paper mr-1"></i> QR Haid</button>
+        <button onclick="switchAdminTab('rekap')" id="tab-rekap" class="admin-tab flex-1 py-3 text-center text-gray-500 font-medium transition"><i class="fa-solid fa-file-lines mr-1"></i> Rekap Absen</button>
       </div>
 
-      <div id="admin-content-qr" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md p-6 md:p-8 text-center border-t-4 border-orange-500">
-        <h2 class="text-2xl font-bold mb-4">Kontrol QR Absensi</h2>
-        <div class="flex max-w-md mx-auto space-x-2 mb-6">
-          <button id="btnStartQR" onclick="startQR()" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 shadow"><i class="fa-solid fa-play mr-2"></i> Mulai Sesi</button>
-          <button id="btnStopQR" onclick="stopQR()" class="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 shadow hidden"><i class="fa-solid fa-stop mr-2"></i> Hentikan Sesi</button>
+      <!-- KONTEN QR (Digunakan Bersama oleh Tab Sholat & Haid) -->
+      <div id="admin-content-qr" class="max-w-xl mx-auto bg-white rounded-2xl shadow-md p-6 md:p-8 text-center border-t-4 border-orange-500">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Kontrol Sesi Absensi</h2>
+        
+        <!-- TOMBOL MULAI & HENTIKAN SESI (Global untuk kedua QR) -->
+        <div class="flex space-x-2 mb-6">
+          <button id="btnStartQR" onclick="startQR()" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 shadow transition"><i class="fa-solid fa-play mr-2"></i> Mulai Sesi</button>
+          <button id="btnStopQR" onclick="stopQR()" class="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 shadow hidden transition"><i class="fa-solid fa-stop mr-2"></i> Hentikan Sesi</button>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-6 mb-4 justify-center items-center">
-          <!-- QR 1: SHOLAT -->
-          <div class="bg-green-50 p-6 rounded-2xl border border-green-200 shadow-sm flex flex-col items-center">
-             <h3 class="font-bold text-green-700 text-lg mb-4"><i class="fa-solid fa-person-praying"></i> QR Hadir Sholat</h3>
-             <div id="qrcode-sholat" class="bg-white p-3 rounded-xl shadow-sm min-h-[220px] min-w-[220px] flex items-center justify-center"><div class="text-gray-400"><i class="fa-solid fa-qrcode text-5xl"></i></div></div>
-          </div>
-          <!-- QR 2: HAID -->
-          <div class="bg-red-50 p-6 rounded-2xl border border-red-200 shadow-sm flex flex-col items-center">
-             <h3 class="font-bold text-red-700 text-lg mb-4"><i class="fa-solid fa-hand-paper"></i> QR Haid </h3>
-             <div id="qrcode-haid" class="bg-white p-3 rounded-xl shadow-sm min-h-[220px] min-w-[220px] flex items-center justify-center"><div class="text-gray-400"><i class="fa-solid fa-qrcode text-5xl"></i></div></div>
-          </div>
+        <!-- AREA QR SHOLAT -->
+        <div id="container-qr-sholat" class="bg-green-50 p-6 rounded-2xl border border-green-200 shadow-sm flex flex-col items-center mb-4">
+           <h3 class="font-bold text-green-700 text-xl mb-4"><i class="fa-solid fa-person-praying"></i> Tampilan QR Hadir Sholat</h3>
+           <div id="qrcode-sholat" class="bg-white p-3 rounded-xl shadow-sm min-h-[250px] min-w-[250px] flex items-center justify-center"><div class="text-gray-400 text-center"><i class="fa-solid fa-qrcode text-6xl mb-2"></i><br><span class="text-sm font-bold">Sesi Belum Dimulai</span></div></div>
+        </div>
+
+        <!-- AREA QR HAID -->
+        <div id="container-qr-haid" class="hidden bg-red-50 p-6 rounded-2xl border border-red-200 shadow-sm flex flex-col items-center mb-4">
+           <h3 class="font-bold text-red-700 text-xl mb-4"><i class="fa-solid fa-hand-paper"></i> Tampilan QR Haid / Udzur</h3>
+           <div id="qrcode-haid" class="bg-white p-3 rounded-xl shadow-sm min-h-[250px] min-w-[250px] flex items-center justify-center"><div class="text-gray-400 text-center"><i class="fa-solid fa-qrcode text-6xl mb-2"></i><br><span class="text-sm font-bold">Sesi Belum Dimulai</span></div></div>
         </div>
         
-        <div class="max-w-md mx-auto w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden shadow-inner"><div id="qrProgressBar" class="bg-gradient-to-r from-orange-400 to-red-500 h-3 rounded-full" style="width: 0%"></div></div>
+        <!-- PROGRESS BAR -->
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden shadow-inner">
+          <div id="qrProgressBar" class="bg-gray-400 h-3 rounded-full" style="width: 0%"></div>
+        </div>
         <p id="qrStatusText" class="text-sm font-bold text-gray-500">Sesi Absensi Ditutup</p>
       </div>
 
-      <div id="admin-content-rekap" class="hidden bg-white rounded-2xl shadow-md p-6">
-        <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 border-b pb-4"><div><h2 class="text-xl font-bold">Database Absensi</h2></div><div class="flex space-x-2 w-full md:w-auto"><button id="btnRefresh" onclick="fetchLaporan()" class="flex-1 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-lg font-bold border border-blue-200"><i class="fa-solid fa-sync-alt"></i> Muat Ulang</button><button onclick="exportToExcel()" class="flex-1 bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold"><i class="fa-solid fa-file-excel"></i> Export Matrix</button></div></div>
-        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Filter Bulan & Tahun</label><input type="month" id="filterBulan" onchange="terapkanFilter()" class="w-full px-3 py-2 border rounded-lg text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Kategori Filter</label><select id="filterKategori" onchange="terapkanFilter()" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="Semua">Tampilkan Semua</option><option value="Kelas">Berdasarkan Kelas</option><option value="Siswa">Berdasarkan ID Siswa</option></select></div><div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 mb-1">Kata Kunci</label><div class="relative"><i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i><input type="text" id="filterKeyword" onkeyup="terapkanFilter()" placeholder="Misal: 10-A atau SISWA-1001" class="w-full pl-9 pr-3 py-2 border rounded-lg text-sm"></div></div></div>
+      <!-- KONTEN REKAP ABSEN -->
+      <div id="admin-content-rekap" class="hidden bg-white rounded-2xl shadow-md p-6 border-t-4 border-blue-500">
+        <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 border-b pb-4">
+          <div><h2 class="text-xl font-bold text-gray-800">Database Absensi</h2></div>
+          <div class="flex space-x-2 w-full md:w-auto">
+            <button id="btnRefresh" onclick="fetchLaporan()" class="flex-1 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-lg font-bold border border-blue-200 hover:bg-blue-100 transition"><i class="fa-solid fa-sync-alt"></i> Muat Ulang</button>
+            <button onclick="exportToExcel()" class="flex-1 bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-green-700 transition shadow"><i class="fa-solid fa-file-excel"></i> Export Matrix</button>
+          </div>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div><label class="block text-xs font-bold text-gray-600 mb-1">Filter Bulan & Tahun</label><input type="month" id="filterBulan" onchange="terapkanFilter()" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+          <div><label class="block text-xs font-bold text-gray-600 mb-1">Kategori Filter</label><select id="filterKategori" onchange="terapkanFilter()" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="Semua">Tampilkan Semua</option><option value="Kelas">Berdasarkan Kelas</option><option value="Siswa">Berdasarkan ID Siswa</option></select></div>
+          <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 mb-1">Kata Kunci</label><div class="relative"><i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i><input type="text" id="filterKeyword" onkeyup="terapkanFilter()" placeholder="Misal: 10-A atau SISWA-1001" class="w-full pl-9 pr-3 py-2 border rounded-lg text-sm"></div></div>
+        </div>
         <div class="mb-3 text-sm font-medium text-gray-500">Total Data: <span id="totalDataCount" class="font-bold text-orange-600">0</span></div>
-        <div class="overflow-x-auto rounded-lg border border-gray-200"><table class="w-full text-sm text-left text-gray-600"><thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b"><tr><th class="px-5 py-4">Waktu</th><th class="px-5 py-4">Siswa</th><th class="px-5 py-4">Kelas</th><th class="px-5 py-4">Status</th></tr></thead><tbody id="tbodyLaporan"><tr><td colspan="4" class="text-center py-8">Klik Muat Ulang untuk melihat data.</td></tr></tbody></table></div>
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+          <table class="w-full text-sm text-left text-gray-600">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b"><tr><th class="px-5 py-4">Waktu</th><th class="px-5 py-4">Siswa</th><th class="px-5 py-4">Kelas</th><th class="px-5 py-4">Status</th></tr></thead>
+            <tbody id="tbodyLaporan"><tr><td colspan="4" class="text-center py-8">Klik Muat Ulang untuk melihat data.</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>
@@ -106,18 +149,51 @@
     let currentUser = null; let html5QrcodeScanner = null; let qrTimerInterval = null; let isScannerRunning = false; let qrIsActive = false;
     window.rawLaporanData = []; window.filteredLaporanData = []; 
 
-    // OWASP: Anti-XSS Protection
+    // OWASP: Anti-XSS Protection (Mencegah script HTML jahat dirender)
     function escapeHTML(str) { return String(str || "").replace(/[&<>'"]/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[match]); }
 
+    // FITUR JAM OPERASIONAL 10:00 - 17:00
     function updateUIJamOperasional() {
       const jam = new Date().getHours();
       document.getElementById('bannerOperasional').style.display = ((jam < 10 || jam >= 17) && document.getElementById('loginRole').value === 'siswa') ? 'block' : 'none';
     } setInterval(updateUIJamOperasional, 1000);
 
+    // SISTEM NAVIGASI & TAB GURU
     function showView(v) { ['view-login', 'view-siswa', 'view-admin'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById(v).classList.remove('hidden'); }
-    function switchLoginRole(role) { document.getElementById('loginRole').value = role; const btnS = document.getElementById('btnRoleSiswa'), btnA = document.getElementById('btnRoleAdmin'); if(role === 'siswa'){ btnS.className = 'flex-1 py-2 rounded-md bg-white shadow-sm text-orange-600 font-bold'; btnA.className = 'flex-1 py-2 rounded-md text-gray-500 font-bold';} else {btnA.className = 'flex-1 py-2 rounded-md bg-white shadow-sm text-orange-600 font-bold'; btnS.className = 'flex-1 py-2 rounded-md text-gray-500 font-bold';} updateUIJamOperasional(); }
-    function switchAdminTab(t) { document.querySelectorAll('.admin-tab').forEach(el => el.className = 'admin-tab flex-1 py-3 text-center text-gray-500 font-medium'); document.getElementById('tab-'+t).className = 'admin-tab flex-1 py-3 text-center text-orange-600 border-b-2 border-orange-600 font-bold'; document.getElementById('admin-content-qr').classList.add('hidden'); document.getElementById('admin-content-rekap').classList.add('hidden'); document.getElementById('admin-content-'+t).classList.remove('hidden'); if(t === 'rekap' && window.rawLaporanData.length === 0) fetchLaporan(); }
+    
+    function switchLoginRole(role) { 
+      document.getElementById('loginRole').value = role; const btnS = document.getElementById('btnRoleSiswa'), btnA = document.getElementById('btnRoleAdmin'); 
+      if(role === 'siswa'){ btnS.className = 'flex-1 py-2 rounded-md bg-white shadow-sm text-orange-600 font-bold'; btnA.className = 'flex-1 py-2 rounded-md text-gray-500 font-bold';} 
+      else {btnA.className = 'flex-1 py-2 rounded-md bg-white shadow-sm text-orange-600 font-bold'; btnS.className = 'flex-1 py-2 rounded-md text-gray-500 font-bold';} 
+      updateUIJamOperasional(); 
+    }
+    
+    function switchAdminTab(t) { 
+      // Reset semua warna tab ke abu-abu
+      document.querySelectorAll('.admin-tab').forEach(el => el.className = 'admin-tab flex-1 py-3 text-center text-gray-500 font-medium transition'); 
+      
+      // Sembunyikan konten utama
+      document.getElementById('admin-content-qr').classList.add('hidden'); 
+      document.getElementById('admin-content-rekap').classList.add('hidden'); 
 
+      if(t === 'qr-sholat') {
+        document.getElementById('tab-qr-sholat').className = 'admin-tab flex-1 py-3 text-center text-green-600 border-b-2 border-green-600 font-bold transition';
+        document.getElementById('admin-content-qr').classList.remove('hidden');
+        document.getElementById('container-qr-sholat').classList.remove('hidden');
+        document.getElementById('container-qr-haid').classList.add('hidden');
+      } else if (t === 'qr-haid') {
+        document.getElementById('tab-qr-haid').className = 'admin-tab flex-1 py-3 text-center text-red-600 border-b-2 border-red-600 font-bold transition';
+        document.getElementById('admin-content-qr').classList.remove('hidden');
+        document.getElementById('container-qr-sholat').classList.add('hidden');
+        document.getElementById('container-qr-haid').classList.remove('hidden');
+      } else if (t === 'rekap') {
+        document.getElementById('tab-rekap').className = 'admin-tab flex-1 py-3 text-center text-blue-600 border-b-2 border-blue-600 font-bold transition';
+        document.getElementById('admin-content-rekap').classList.remove('hidden');
+        if(window.rawLaporanData.length === 0) fetchLaporan();
+      }
+    }
+
+    // PESAN BERHASIL DINAMIS
     function showSuccessMessage(status) {
       document.getElementById('formAbsensi').classList.add('hidden');
       document.getElementById('pesanSudahAbsen').classList.remove('hidden');
@@ -135,6 +211,7 @@
       }
     }
 
+    // LOGIN & LOGOUT
     async function handleLogin(e) {
       e.preventDefault(); const btn = document.getElementById('btnLoginSubmit'); const origTxt = btn.innerText; btn.innerText = 'Memproses...'; btn.disabled = true;
       try {
@@ -142,8 +219,9 @@
         const data = await res.json();
         if (data.status === 'success') {
           currentUser = data.data; document.getElementById('userInfo').classList.remove('hidden'); document.getElementById('welcomeName').innerText = `Halo, ${escapeHTML(currentUser.nama)}`;
-          if (currentUser.role === 'admin') { showView('view-admin'); } 
-          else {
+          if (currentUser.role === 'admin') { 
+            showView('view-admin'); switchAdminTab('qr-sholat'); // Default Tab Guru
+          } else {
             showView('view-siswa'); document.getElementById('siswaNama').innerText = escapeHTML(currentUser.nama); document.getElementById('siswaKelas').innerText = `Kelas ${escapeHTML(currentUser.kelas)} | ID: ${escapeHTML(currentUser.id)}`;
             if (currentUser.sudah_absen) { showSuccessMessage('Hadir'); document.getElementById('titleSuccess').innerText = 'Telah Tercatat'; document.getElementById('descSuccess').innerText = 'Anda sudah melakukan absensi hari ini.'; } else { document.getElementById('formAbsensi').classList.remove('hidden'); document.getElementById('pesanSudahAbsen').classList.add('hidden'); }
           }
@@ -153,6 +231,7 @@
 
     function logout() { location.reload(); }
 
+    // KAMERA SISWA
     function startScanner() {
       if (isScannerRunning) return; document.getElementById('reader-container').classList.remove('hidden'); document.getElementById('btnStartScan').classList.add('hidden');
       html5QrcodeScanner = new Html5Qrcode("reader"); html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, async (text) => { stopScanner(); await kirimAbsen(text); }, () => {}).then(() => { isScannerRunning = true; }).catch(err => { alert("⚠️ Gagal mengakses kamera."); stopScanner(); });
@@ -170,27 +249,43 @@
       } catch (e) { alert('⚠️ Gagal mengirim data.'); } finally { btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> Mulai Scan QR'; btn.disabled = false; }
     }
 
-    // FUNGSI ADMIN KONTROL DUAL QR
+    // FUNGSI ADMIN KONTROL DUAL QR (SHOLAT & HAID SERENTAK)
     function startQR() {
-      qrIsActive = true; document.getElementById('btnStartQR').classList.add('hidden'); document.getElementById('btnStopQR').classList.remove('hidden'); document.getElementById('qrStatusText').innerText = "QR AKTIF - Memperbarui dalam: 60 detik"; document.getElementById('qrStatusText').className = "text-sm font-bold text-green-600"; generateNewQR();
+      qrIsActive = true; 
+      document.getElementById('btnStartQR').classList.add('hidden'); 
+      document.getElementById('btnStopQR').classList.remove('hidden'); 
+      document.getElementById('qrStatusText').innerText = "Sesi AKTIF - Memperbarui dalam: 60 detik"; 
+      document.getElementById('qrStatusText').className = "text-sm font-bold text-green-600"; 
+      document.getElementById('qrProgressBar').className = "bg-gradient-to-r from-green-400 to-emerald-600 h-3 rounded-full";
+      generateNewQR();
     }
+    
     function stopQR() {
       qrIsActive = false; if(qrTimerInterval) clearInterval(qrTimerInterval);
-      document.getElementById('qrcode-sholat').innerHTML = '<div class="text-gray-400 p-8"><i class="fa-solid fa-qrcode text-5xl"></i></div>';
-      document.getElementById('qrcode-haid').innerHTML = '<div class="text-gray-400 p-8"><i class="fa-solid fa-qrcode text-5xl"></i></div>';
-      document.getElementById('qrProgressBar').style.width = '0%'; document.getElementById('qrStatusText').innerText = "Sesi Absensi Dihentikan oleh Guru"; document.getElementById('qrStatusText').className = "text-sm font-bold text-red-600"; document.getElementById('btnStartQR').classList.remove('hidden'); document.getElementById('btnStopQR').classList.add('hidden');
+      document.getElementById('qrcode-sholat').innerHTML = '<div class="text-gray-400 text-center"><i class="fa-solid fa-qrcode text-6xl mb-2"></i><br><span class="text-sm font-bold">Sesi Dihentikan</span></div>';
+      document.getElementById('qrcode-haid').innerHTML = '<div class="text-gray-400 text-center"><i class="fa-solid fa-qrcode text-6xl mb-2"></i><br><span class="text-sm font-bold">Sesi Dihentikan</span></div>';
+      document.getElementById('qrProgressBar').style.width = '0%'; 
+      document.getElementById('qrProgressBar').className = "bg-gray-400 h-3 rounded-full";
+      document.getElementById('qrStatusText').innerText = "Sesi Absensi Dihentikan oleh Guru"; 
+      document.getElementById('qrStatusText').className = "text-sm font-bold text-red-600"; 
+      document.getElementById('btnStartQR').classList.remove('hidden'); 
+      document.getElementById('btnStopQR').classList.add('hidden');
+      
+      // Kirim perintah "STOPPED" ke backend
       fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_token', token: 'STOPPED' }) }).catch(e => {});
     }
 
     function generateNewQR() {
       if(!qrIsActive) return;
+      // Generate 2 Token Berbeda
       const tSholat = "QRS-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
       const tHaid   = "QRH-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
       
       document.getElementById("qrcode-sholat").innerHTML = ""; document.getElementById("qrcode-haid").innerHTML = "";
-      new QRCode(document.getElementById("qrcode-sholat"), { text: tSholat, width: 200, height: 200, colorDark: "#15803d", colorLight: "#ffffff" });
-      new QRCode(document.getElementById("qrcode-haid"), { text: tHaid, width: 200, height: 200, colorDark: "#b91c1c", colorLight: "#ffffff" });
+      new QRCode(document.getElementById("qrcode-sholat"), { text: tSholat, width: 230, height: 230, colorDark: "#15803d", colorLight: "#ffffff" });
+      new QRCode(document.getElementById("qrcode-haid"), { text: tHaid, width: 230, height: 230, colorDark: "#b91c1c", colorLight: "#ffffff" });
       
+      // Kirim 2 token ke backend
       fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_token', token_sholat: tSholat, token_haid: tHaid }) }).catch(e => {});
 
       let timeLeft = 60; if(qrTimerInterval) clearInterval(qrTimerInterval);
@@ -199,11 +294,12 @@
       qrTimerInterval = setInterval(() => {
         if(!qrIsActive) { clearInterval(qrTimerInterval); return; }
         timeLeft--; bar.style.width = Math.max((timeLeft / 60) * 100, 0) + '%';
-        document.getElementById('qrStatusText').innerText = `QR AKTIF - Memperbarui dalam: ${Math.max(timeLeft, 0)} detik`;
+        document.getElementById('qrStatusText').innerText = `Sesi AKTIF - Memperbarui dalam: ${Math.max(timeLeft, 0)} detik`;
         if (timeLeft <= 0) generateNewQR(); 
       }, 1000);
     }
 
+    // FITUR REKAP & EXCEL MATRIX
     async function fetchLaporan() {
       const tbody = document.getElementById('tbodyLaporan'); const btn = document.getElementById('btnRefresh'); tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8">Menarik data...</td></tr>'; btn.disabled = true;
       try { const res = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_laporan' }) }); const data = await res.json(); if (data.status === 'success') { window.rawLaporanData = data.data.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)); terapkanFilter(); } else tbody.innerHTML = '<tr><td colspan="4" class="text-center text-red-500 py-8">Gagal mengambil data.</td></tr>'; } catch(e) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-red-500 py-8">Gagal terhubung.</td></tr>'; } finally { btn.disabled = false; }
@@ -221,7 +317,9 @@
         const d = r.timestamp ? new Date(r.timestamp) : null;
         const dtStr = d ? d.toLocaleDateString('id-ID', {timeZone: 'Asia/Jakarta', day:'2-digit',month:'2-digit',year:'numeric'}) : r.tanggal;
         const tmStr = d ? d.toLocaleTimeString('id-ID', {timeZone: 'Asia/Jakarta', hour:'2-digit', minute:'2-digit'}) : '-';
-        tbody.innerHTML += `<tr class="border-b"><td class="p-4">${escapeHTML(dtStr)}<br><span class="text-xs text-gray-500">${escapeHTML(tmStr)} WIB</span></td><td class="p-4 font-bold">${escapeHTML(r.nama)}<br><span class="text-xs text-gray-500">${escapeHTML(r.id_siswa)}</span></td><td class="p-4">${escapeHTML(r.kelas)}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${r.keterangan==='Hadir'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${escapeHTML(r.keterangan)}</span></td></tr>`;
+        // Warna Badge Sesuai Status
+        const badgeColor = r.keterangan === 'Hadir' ? 'bg-green-100 text-green-700' : (r.keterangan === 'Haid' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700');
+        tbody.innerHTML += `<tr class="border-b hover:bg-gray-50 transition"><td class="p-4">${escapeHTML(dtStr)}<br><span class="text-xs text-gray-500">${escapeHTML(tmStr)} WIB</span></td><td class="p-4 font-bold">${escapeHTML(r.nama)}<br><span class="text-xs text-gray-500">${escapeHTML(r.id_siswa)}</span></td><td class="p-4">${escapeHTML(r.kelas)}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${badgeColor}">${escapeHTML(r.keterangan)}</span></td></tr>`;
       });
     }
 
@@ -230,7 +328,7 @@
       const map = {}; window.filteredLaporanData.forEach(r => { if(!map[r.id_siswa]) map[r.id_siswa] = {'ID Siswa': r.id_siswa, 'Nama Lengkap': r.nama, 'Kelas': r.kelas}; const p = String(r.tanggal).split('/'); if(p.length===3) map[r.id_siswa][parseInt(p[0], 10)] = r.keterangan==='Hadir'?'H':'A'; });
       const exc = Object.values(map); const cols = ['ID Siswa', 'Nama Lengkap', 'Kelas']; for(let i=1; i<=31; i++) cols.push(String(i));
       const ws = XLSX.utils.json_to_sheet(exc, { header: cols });
-      XLSX.utils.sheet_add_aoa(ws, [["Keterangan:"],["H = Hadir Sholat"],["A = Alpa / Haid "]], { origin: `A${exc.length+2}` });
+      XLSX.utils.sheet_add_aoa(ws, [["Keterangan:"],["H = Hadir Sholat"],["A = Alpa / Haid / Udzur"]], { origin: `A${exc.length+2}` });
       ws['!cols'] = [{wch:15}, {wch:30}, {wch:10}];
       const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Rekap Matrix");
       const bln = document.getElementById('filterBulan').value; XLSX.writeFile(wb, bln ? `Rekap_Absensi_${bln}.xlsx` : `Rekap_Absensi_All.xlsx`);
